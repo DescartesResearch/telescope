@@ -5,7 +5,7 @@ Telescope is a hybrid multi-step-ahead forecasting approach based on time series
 This package can be installed by using the following commands:
 
 `install.packages("devtools")` <br />
-`devtools::install_github("marwinzuefle/telescope")` <br />
+`devtools::install_github("DescartesResearch/telescope")` <br />
 `library(telescope)`
 
 ## Example
