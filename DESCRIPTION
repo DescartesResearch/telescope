@@ -1,0 +1,22 @@
+Package: telescope
+Type: Package
+Title: Hybrid Multi-Step-Ahead Forecasting
+Version: 0.1.0
+Date: 2018-05-16
+Author: Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>, Andre Bauer <andre.bauer@uni-wuerzburg.de>
+Maintainer: Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>, Andre Bauer <andre.bauer@uni-wuerzburg.de>
+Description: Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition.
+License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
+Depends:
+    forecast (>= 8.1),
+    cluster (>= 2.0.4),
+    xgboost (>= 0.6.4),
+    tseries (>= 0.10.35),
+    R.utils (>= 2.5.0),
+    devtools (>= 1.13.3),
+    zoo (>= 1.7.13),
+    e1071 (>= 1.6.8),
+    data.table (>= 1.10.4)
+RoxygenNote: 6.0.1
