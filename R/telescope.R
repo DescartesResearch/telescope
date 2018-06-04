@@ -179,6 +179,10 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
     testcov <- rbind(fcTrend,fcSeason[(hist.length+1):total.length],clusterLabels[(hist.length+1):total.length])
   }
   testcov <- as.matrix(t(testcov))
+  
+  # Unify names
+  fXGB$feature_names <- colnames(testcov)
+  colnames(xgbcov) <- colnames(testcov)
 
   # Perform forecast using the covariates
   predXGB <- predict(fXGB,testcov)
