@@ -50,7 +50,13 @@ calcClustersForPeriods <- function(timeseries,frequency,doAnomDet,replace.zeros,
   }
 
   # Perform kmeans
-  clk <- kmeans(features, centers = 2)
+  # kmeans requires at least 3 rows
+  if(nrow(features)<=2){
+    clusters <- rep(1,nrow(features))
+    return(cbind(means,vars,ranges,clusters))
+  } else{
+    clk <- kmeans(features, centers = 2)
+  }
 
 
   # determine dissimilarity
