@@ -213,6 +213,7 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
   # Undo adjustment to positive values
   if(minValue<=0) {
     xgb.model <- xgb.model - abs(minValue) - 1
+    tvp$values <- tvp$values - abs(minValue) - 1
   }
   
   # Calculates the accuracies of the trained model
@@ -230,11 +231,15 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
   fcAll <- ts(fcAll,frequency=tvp$frequency)
   
   # Plot the model and the time series
-  plot(1:length(tvpTrain[-1]), tvpTrain[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, total.length) )
+  y.min <- min(min(tvpTrain[-1]),min(xgb.model[-1]))
+  y.max <- max(max(tvpTrain[-1]),max(xgb.model[-1]))
+  plot(1:length(tvpTrain[-1]), tvpTrain[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, total.length), ylim = c(y.min, y.max))
   lines(1:length(xgb.model[-1]), xgb.model[-1], type = "l", col="red")
   
   # Plot the forecasted time series and the original time series
-  plot(1:total.length, as.vector(fcAll),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length))
+  y.min <- min(min(fcAll),min(tvp$values))
+  y.max <- max(max(fcAll),max(tvp$values))
+  plot(1:total.length, as.vector(fcAll),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length), ylim = c(y.min, y.max))
   lines(1:length(tvp$values), tvp$values)
 
   # Collect information for output
