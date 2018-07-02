@@ -21,7 +21,7 @@ save.csv <- function(values, name, path = '') {
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param use.sec.freq Determines if a second frequency shall be used
 #' @return the time value pair as vector, the frequency of the data, use.sec.freq and if the data was no time series, the last iteration and the periodigram of the frequncy estimation is also returned
-extract.info <- function(tvp, use.sec.freq) {
+extract.info <- function(tvp, use.sec.freq, debug=FALSE) {
 
   # If the time value pair is a time series, get the values and the frequency
   if (is.ts(tvp)) {
@@ -51,7 +51,8 @@ extract.info <- function(tvp, use.sec.freq) {
       calcFrequencyPeriodogram(
         timeValuePair = tvp,
         asInteger = TRUE,
-        difFactor = 0.5
+        difFactor = 0.5,
+        debug = debug
       )
 
     frequency <- freq$frequency[1]
