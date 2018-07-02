@@ -49,7 +49,7 @@ doXGB.train <- function(myts, cov, booster, verbose) {
   return(model)
 }
 
-#' @description Estimates the booster for XGBoost based on if the time series has a significant trend
+#' @description Checks if the time series has a significant trend
 #'
 #' @title Estimating the boosting method
 #' @param stl.decomp The STL decomposition of a time series
@@ -57,7 +57,7 @@ doXGB.train <- function(myts, cov, booster, verbose) {
 #' @param upper.percentile Optional parameter: The upper percentile for the IPR. 0.95 by default
 #' @param threshold Optional parameter: Threshold what the propotion of trend component has to exceed to be trendy. 0.33 by default
 #' @return True if the time series has a significant trend
-estimateBooster <- function(stl.decomp, lower.percentile = 0.05, upper.percentile = 0.95, threshold = 0.33) {
+check.trend <- function(stl.decomp, lower.percentile = 0.05, upper.percentile = 0.95, threshold = 0.33) {
 
   # Calculates the IPR of the noise as noise may have outliers
   range.noise <- IPR(stl.decomp$time.series[,3], lower.percentile, upper.percentile)
