@@ -121,25 +121,18 @@ forecast.trend <- function(model, tsTrainTrend, frequency, horizon) {
 #' @title Checking Remainder
 #' @param tvp tvp The time value pair as vector
 #' @param stlRemainder The remainder part of the deccomposition of the tvp
-#' @param use.log A flag if log was used for tvp
 #' @param sig.dif.factor The threshold that is to exceed for having a high remainder
 #' @return If the the time series has a high remainder compared to the threshold
-has.highRemainder <- function(tvp, stlRemainder, use.log, sig.dif.factor) {
+has.highRemainder <- function(tvp, stlRemainder, sig.dif.factor) {
   # Calculates the IQR of the remainder and original time series
-  if (use.log) {
-    remainder.quantiles.log <- quantile(stlRemainder)
-    # range from 25% to 75% quantile
-    remainder.quantiles.range <- exp(remainder.quantiles.log[4] - remainder.quantiles.log[2])
-    tvp.quantiles <- quantile(tvp)
-    tvp.quantiles.range <- exp(tvp.quantiles[4] - tvp.quantiles[2])
-  } else {
-    remainder.quantiles <- quantile(stlRemainder)
-    # range from 25% to 75% quantile
-    remainder.quantiles.range <-
-      remainder.quantiles[4] - remainder.quantiles[2]
-    tvp.quantiles <- quantile(tvp)
-    tvp.quantiles.range <- tvp.quantiles[4] - tvp.quantiles[2]
-  }
+  
+  remainder.quantiles <- quantile(stlRemainder)
+  # range from 25% to 75% quantile
+  remainder.quantiles.range <-
+    remainder.quantiles[4] - remainder.quantiles[2]
+  tvp.quantiles <- quantile(tvp)
+  tvp.quantiles.range <- tvp.quantiles[4] - tvp.quantiles[2]
+  
   # If the remainder IQR has a higher propotion than the threshold
   if (sig.dif.factor * tvp.quantiles.range < remainder.quantiles.range) {
     return(TRUE)
