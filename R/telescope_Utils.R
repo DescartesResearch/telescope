@@ -20,6 +20,7 @@ save.csv <- function(values, name, path = '') {
 #' @title Extract time series information
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param use.sec.freq Determines if a second frequency shall be used
+#' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
 #' @return the time value pair as vector, the frequency of the data, use.sec.freq and if the data was no time series, the last iteration and the periodigram of the frequncy estimation is also returned
 extract.info <- function(tvp, use.sec.freq, debug=FALSE) {
 
