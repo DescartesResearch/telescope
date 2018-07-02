@@ -17,7 +17,7 @@
 #' @examples
 #' telescope.forecast(AirPassengers, horizon=10)
 #' @export
-performHybridForecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE) {
+telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE) {
   
     use.second.freq <- TRUE
     sig.dif.factor <- 0.5
