@@ -26,10 +26,10 @@ guessFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor
 
   if(length(ProbFreq) == 0 || ProbFreq >= length(timeValuePair)) {
     freqPeriodo <- -1
-    print("Guessed Frequency longer than time series length!")
+    if(debug) print("Guessed Frequency longer than time series length!")
   } else if(ProbFreq >= length(timeValuePair)/2) {
     freqPeriodo <- -1
-    print("Guessed Frequency too long: we need more than 2 periods worth of data!")
+    if(debug) print("Guessed Frequency too long: we need more than 2 periods worth of data!")
   } else {
 
     if(asInteger) {
@@ -87,7 +87,7 @@ guessFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor
         freqPeriodo <- ProbFreq
       }
     } else {
-      print("Some problems occured! The max spectrum is not a real season!")
+      if(debug) print("Some problems occured! The max spectrum is not a real season!")
       freqPeriodo <- -1
     }
   }
@@ -106,7 +106,7 @@ guessFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor
 #' @param ithBest Optional parameter: i-th most likely frequency is tested. 1 by default.
 #' @param PGramTvp Optional parameter: An already created periodogram. Null by default
 #' @return The frequency that appears in the periodogram and the list of most frequent frequencys, the created perodogram and the last iteration
-calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor = 0.5, tolerance = 0.05, maxIters = 10, ithBest = 1, PGramTvp = NULL) {
+calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor = 0.5, tolerance = 0.05, maxIters = 10, ithBest = 1, PGramTvp = NULL, debug = FALSE) {
 
   # typical measurements per hour
   mPerH <- c(1,2,4,6,12,60)
@@ -137,7 +137,7 @@ calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor 
     # If there is no suitable frequency found during the maximum amount of iterations, the most dominant frequency, the one
     # determined using ithBest = 1, is returned
     if(numIters>maxIters) {
-      print("Periodogram could not find dominant frequency")
+      if(debug) print("Periodogram could not find dominant frequency")
       freq <- guessFrequencyPeriodogram(timeValuePair,asInteger,difFactor,ithBest = 1,PGramTvp = PGramTvp)
       PGramTvp <- freq$pgram
       break()
@@ -150,7 +150,7 @@ calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor 
       freq <- guessFrequencyPeriodogram(timeValuePair,asInteger,difFactor,ithBest = ithBest,spans = 5,PGramTvp = PGramTvp)
     }
 
-    print(paste("Iteration:",numIters, "testing frequency:",freq$frequency))
+    if(debug) print(paste("Iteration:",numIters, "testing frequency:",freq$frequency))
     PGramTvp <- freq$pgram
     a <- freq$frequency
 
@@ -184,9 +184,9 @@ calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor 
   # If there is no "good" frequency found, set frequency to 2 as STL requries at least this value
   if(frequency == -1) {
     frequency = 2
-    print("No frequency found. Set frequency to: 2")
+    if(debug) print("No frequency found. Set frequency to: 2")
   } else {
-    print(paste("Accepting frequency:",frequency))
+    if(debug) print(paste("Accepting frequency:",frequency))
   }
 
   return(list("frequency" = frequency, "pgram" = freq$pgram, "lastIterfreq" = lastIterFreq1))
