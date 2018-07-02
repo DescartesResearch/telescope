@@ -65,8 +65,11 @@ fittingModels <- function(stl, frequency, difFactor = 1.5, debug = FALSE) {
   RMSElog <- mean(sqrt((stlTrend-Counts.exponential2)^2))
   RMSE <- mean(sqrt((stlTrend-Counts.linear)^2))
 
-  print(paste("RMSE exp fit:",RMSElog))
-  print(paste("RMSE lin fit:",RMSE))
+  if(debug){
+    print(paste("RMSE exp fit:",RMSElog))
+    print(paste("RMSE lin fit:",RMSE))
+  }
+
   if (RMSE <= difFactor*RMSElog) {
     # if the difference is small, the trend model estimation is risky
     if(RMSE <= 0.8*difFactor*RMSElog) {
@@ -92,16 +95,3 @@ fittingModels <- function(stl, frequency, difFactor = 1.5, debug = FALSE) {
   )
 }
 
-#' @description Checks if the time series has a significant trend
-#'
-#' @title Test the Signifcant of Trend
-#' @param tvp The time-value pair (not in log)
-#' @param frequency The frequency of the time-value pair
-#' @return If time series has a significant trend
-testTrend <- function(tvp, frequency) {
-  ts <- ts(tvp,frequency = frequency)
-
-  stl <- stl(ts, s.window = "periodic", t.window = length(tvp)/2)
-  return(estimateBooster(stl))
-
-}
