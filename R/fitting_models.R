@@ -62,8 +62,8 @@ fittingModels <- function(stl, frequency, difFactor = 1.5, debug = FALSE) {
   }
 
   # Calculates RSME between the models and the trend
-  RMSElog <- mean(sqrt((stlTrend-Counts.exponential2)^2))
-  RMSE <- mean(sqrt((stlTrend-Counts.linear)^2))
+  RMSElog <- sqrt(mean((stlTrend-Counts.exponential2)^2))
+  RMSE <- sqrt(mean((stlTrend-Counts.linear)^2))
 
   if(debug){
     print(paste("RMSE exp fit:",RMSElog))
