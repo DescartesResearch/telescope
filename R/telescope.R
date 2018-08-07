@@ -31,7 +31,7 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
     print(paste("Found frequency:", tvp$frequency))
     
     # Remove all Anomalies on the raw time series first
-    if(tvp$frequency>10) {
+    if(tvp$frequency>10 && doAnomDet) {
       tvp$values <- removeAnomalies(tvp$values,frequency = tvp$frequency, replace.zeros = replace.zeros)
     }
     
