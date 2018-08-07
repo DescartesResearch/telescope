@@ -14,7 +14,7 @@ doXGB.train <- function(myts, cov, booster, verbose) {
 
   set.seed(200)
 
-  nsample <- as.integer(0.2 * nrow(combined))
+  nsample <- as.integer(0.8 * nrow(combined))
 
   # Create a vector of nsample sample indices between 1 and the amount of rows of the matrix combined
   h <- sample(nrow(combined),nsample)
@@ -30,7 +30,7 @@ doXGB.train <- function(myts, cov, booster, verbose) {
   }
 
   # Create a watchlist using a validation and a training set to prevent xgboost from overfitting
-  watchlist <- list(val=dtest, train=dtrain)
+  watchlist <- list(train=dtrain, val=dtest)
 
   param <- list(  objective           = "reg:linear",
                   booster             = booster,
