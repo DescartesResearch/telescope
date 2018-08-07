@@ -19,6 +19,10 @@
 #' @export
 telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE) {
   
+    if(anyNA(tvp)) {
+      stop("Telescope does not support NA values, only numeric.")
+    }
+  
     use.second.freq <- TRUE
     sig.dif.factor <- 0.5
     plot <- TRUE
