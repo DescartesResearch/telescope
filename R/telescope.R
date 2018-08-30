@@ -17,7 +17,7 @@
 #' @examples
 #' telescope.forecast(AirPassengers, horizon=10)
 #' @export
-telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE) {
+telescope.forecast <- function(tvp, horizon, repsANN = 20, doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
     if(anyNA(tvp)) {
       stop("Telescope does not support NA values, only numeric.")
@@ -25,7 +25,7 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
   
     use.second.freq <- TRUE
     sig.dif.factor <- 0.5
-    plot <- TRUE
+    plotACC <- TRUE
     
     startTime <- Sys.time()
     
@@ -256,8 +256,8 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
     accuracyXGB <- accuracy(xgb.model, tvp$values)
     # inner MASE value (fitting of the model)
     tvpTrain <- tvp$values
-    MASE <- computeMASE(xgb.model[-1], train = tvpTrain[1], test = tvpTrain[-1], !plot)
-    MASE_Multistep <- computeMASEsameValue(xgb.model[-1], train = tvpTrain[1], test = tvpTrain[-1], !plot)
+    MASE <- computeMASE(xgb.model[-1], train = tvpTrain[1], test = tvpTrain[-1], !plotACC)
+    MASE_Multistep <- computeMASEsameValue(xgb.model[-1], train = tvpTrain[1], test = tvpTrain[-1], !plotACC)
     inner.accuracy <- cbind(accuracyXGB, MASE, MASE_Multistep)
     print(inner.accuracy)
     
@@ -267,16 +267,21 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20,doAnomDet = TRUE, repl
     fcAll <- ts(fcAll, frequency = tvp$frequency)
     
     # Plot the model and the time series
-    y.min <- min(min(tvpTrain[-1]),min(xgb.model[-1]))
-    y.max <- max(max(tvpTrain[-1]),max(xgb.model[-1]))
-    plot(1:length(tvpTrain[-1]), tvpTrain[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, total.length), ylim = c(y.min, y.max) )
-    lines(1:length(xgb.model[-1]), xgb.model[-1], type = "l", col="red")
+    if(plot) {
+      y.min <- min(min(tvpTrain[-1]),min(xgb.model[-1]))
+      y.max <- max(max(tvpTrain[-1]),max(xgb.model[-1]))
+      plot(1:length(tvpTrain[-1]), tvpTrain[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, total.length), ylim = c(y.min, y.max) )
+      lines(1:length(xgb.model[-1]), xgb.model[-1], type = "l", col="red")
+    }
+    
     
     # Plot the forecasted time series and the original time series
-    y.min <- min(min(fcAll),min(tvp$values))
-    y.max <- max(max(fcAll),max(tvp$values))
-    plot(1:total.length, as.vector(fcAll),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length), ylim = c(y.min, y.max))
-    lines(1:length(tvp$values), tvp$values)
+    if(plot) {
+      y.min <- min(min(fcAll),min(tvp$values))
+      y.max <- max(max(fcAll),max(tvp$values))
+      plot(1:total.length, as.vector(fcAll),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length), ylim = c(y.min, y.max))
+      lines(1:length(tvp$values), tvp$values)
+    }
     
     # Collect information for output
     output.mean <- fcOnly
