@@ -66,6 +66,9 @@ AnomalyDetectionVec = function(x, max_anoms=0.10, direction='pos',
                                plot=F, y_log=F, xlabel='', ylabel='count',
                                title=NULL, verbose=FALSE){
 
+  # plot is buggy
+  plot <- FALSE
+  
   # Check for supported inputs types and add timestamps
   if(is.data.frame(x) && ncol(x) == 1 && is.numeric(x[[1]])){
     x <- data.frame(timestamp=c(1:length(x[[1]])), count=x[[1]])
@@ -226,7 +229,7 @@ AnomalyDetectionVec = function(x, max_anoms=0.10, direction='pos',
   # If there are no anoms, then let's exit
   if(anom_pct == 0){
     if(verbose) message("No anomalies detected.")
-    return (list("anoms"=data.frame(), "plot"=plot.new()))
+    return (list("anoms"=data.frame()))
   }
 
   if(plot){
@@ -289,6 +292,6 @@ AnomalyDetectionVec = function(x, max_anoms=0.10, direction='pos',
   if(plot){
     return (list(anoms = anoms, plot = xgraph))
   } else {
-    return (list(anoms = anoms, plot = plot.new()))
+    return (list(anoms = anoms))#, plot = plot.new()))
   }
 }
