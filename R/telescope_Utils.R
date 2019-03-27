@@ -103,16 +103,28 @@ forecast.season <- function(tvp, stlTrain, horizon) {
 #' @param horizon The forecast horizon
 #' @return The trend pattern for the forecast horizon
 forecast.trend <- function(model, tsTrainTrend, frequency, horizon) {
-  # If trend is exponential, log time series
+  # If trend is exponential, log time series  
   if (model == "exp") {
       tsTrainLOG <- ts(log(tsTrainTrend), frequency = frequency)
-      fArimaLOG <- doArima(tsTrainLOG, FALSE)
-      fcArimaLOG <- forecast(fArimaLOG, h = horizon)$mean
+      fcArimaLOG <- tryCatch({
+        fArimaLOG <- doArima(tsTrainLOG, FALSE)
+        forecast(fArimaLOG, h = horizon)$mean
+      }, error = function(e){
+        etsmodel <- ets(ts(tsTrainLOG))
+        ts(forecast(etsmodel, h = horizon)$mean,frequency)
+      }
+      )
       print("exponential Trend detected!")
       fcArima <- exp(fcArimaLOG)
     } else {
-      fArima <- doArima(tsTrainTrend, FALSE)
-      fcArima <- forecast(fArima, h = horizon)$mean
+      fcArima <- tryCatch({
+        fArima <- doArima(tsTrainTrend, FALSE)
+        forecast(fArima, h = horizon)$mean
+      }, error = function(e){
+        etsmodel <- ets(ts(tsTrainTrend))
+        ts(forecast(etsmodel, h = horizon)$mean,frequency)
+      }
+      )
     }
   return(fcArima)
 }
