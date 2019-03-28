@@ -2,7 +2,7 @@
 Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition.
 
 ## Installation
-This package can be installed by using the following commands:
+This package can be installed in R by using the following commands:
 
 `install.packages("devtools")` <br />
 `devtools::install_github("DescartesResearch/telescope")` <br />
