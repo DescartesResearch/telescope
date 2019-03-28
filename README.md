@@ -6,9 +6,14 @@ This package can be installed in R by using the following commands:
 
 `install.packages("devtools")` <br />
 `devtools::install_github("DescartesResearch/telescope")` <br />
-`library(telescope)`
+
+For unknown reasons, install_gitub does not work under all Windows versions. Therefore the package can alternatively be installed in R with the following commands:
+
+`install.packages("remotes")` <br />
+`remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/master.zip", INSTALL_opt= "--no-multiarch")`
 
 ## Example
+`library(telescope)` <br />
 `forecast <- telescope.forecast(AirPassengers, horizon = 10)`
 
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).

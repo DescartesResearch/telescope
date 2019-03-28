@@ -3,8 +3,8 @@ Type: Package
 Title: Hybrid Multi-Step-Ahead Forecasting
 Version: 0.1.0
 Date: 2018-05-16
-Author: Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>, Andre Bauer <andre.bauer@uni-wuerzburg.de>
-Maintainer: Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>, Andre Bauer <andre.bauer@uni-wuerzburg.de>
+Author: Andre Bauer <andre.bauer@uni-wuerzburg.de>, Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>
+Maintainer: Andre Bauer <andre.bauer@uni-wuerzburg.de>, Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>
 Description: Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition.
 License: GPL (>=2)
 Encoding: UTF-8
