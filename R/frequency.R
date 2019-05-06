@@ -22,7 +22,11 @@ guessFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor
   # Sort the spectrum
   SpecSortPgramTvp <- sort(PGramTvp$spec)
   # Calculates the frequencies
-  ProbFreq <- 1/PGramTvp$freq[which(PGramTvp$spec==SpecSortPgramTvp[length(SpecSortPgramTvp)-num])]
+  if(num >= length(SpecSortPgramTvp)){
+    ProbFreq <- c()
+  } else {
+    ProbFreq <- 1/PGramTvp$freq[which(PGramTvp$spec==SpecSortPgramTvp[length(SpecSortPgramTvp)-num])]
+  }
 
   if(length(ProbFreq) == 0 || ProbFreq >= length(timeValuePair)) {
     freqPeriodo <- -1
