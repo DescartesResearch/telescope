@@ -185,7 +185,7 @@ doANN <- function(myts,rep = 20){
       nnetar(myts, repeats = rep, p=1)
     }, error = function(e){
       print(paste("Other unknown error: ", e, sep = ""))
-      snaive(x = myts, h = length(myts)/4)
+      myts[length(myts)]
     })
   })
   return(result)
