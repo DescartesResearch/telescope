@@ -14,7 +14,7 @@ For unknown reasons, install_gitub does not work under all Windows versions. The
 
 ## Example
 `library(telescope)` <br />
-`forecast <- telescope.forecast(AirPassengers, horizon = 10)`
+`forecast <- telescope.forecast(taylor, horizon = 1000)`
 
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).
 
