@@ -33,7 +33,7 @@ telescope.forecast(tvp, horizon, boxcox = TRUE, repsANN = 20,
 \item{debug}{Optional parameter: If TRUE, debugging information will be displayed. FALSE by default}
 }
 \value{
-The forecast
+The forecast of the input data
 }
 \description{
 Forecasts a given univariate time series in a hybrid manner and based on time series decomposition
