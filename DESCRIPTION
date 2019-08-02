@@ -14,9 +14,8 @@ Depends:
     cluster (>= 2.0.4),
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
-    R.utils (>= 2.5.0)
+    R.utils (>= 2.5.0),
+    AnomalyDetection
 Remotes:
     twitter/AnomalyDetection
-Imports: 
-    AnomalyDetection
 RoxygenNote: 6.1.1
