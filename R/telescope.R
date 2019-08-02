@@ -36,7 +36,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnom
     print(paste("Found frequency:", tvp$frequency))
     
     if(tvp$frequency==1){
-      stop("Telescope requires seasonal data")
+      stop("Telescope requires seasonal data, i.e., frequency > 1")
     }
     
     # Remove all Anomalies on the raw time series first
