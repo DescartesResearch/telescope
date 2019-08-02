@@ -11,7 +11,7 @@ save.csv <- function(values, name, path = '') {
   save_here <- gsub(" ", "_", save_here)
   save_here <- gsub(":", "-", save_here)
   save_here <- paste("C:", save_here, sep = "")
-  write.csv(values, file = save_here, col.names = FALSE)
+  write.table(values, file = save_here, col.names = FALSE, row.names = FALSE)
 }
 
 
