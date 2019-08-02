@@ -14,9 +14,7 @@ Depends:
     cluster (>= 2.0.4),
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
-    R.utils (>= 2.5.0),
-    devtools (>= 1.13.3),
-    zoo (>= 1.7.13),
-    e1071 (>= 1.6.8),
-    data.table (>= 1.10.4)
+    R.utils (>= 2.5.0)
+Remotes:
+    twitter/AnomalyDetection
 RoxygenNote: 6.0.1
