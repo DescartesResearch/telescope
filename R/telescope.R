@@ -14,7 +14,7 @@
 #' @param csv.path Optional parameter: The path for the saved csv-file. The current workspace by default.
 #' @param csv.name Optional parameter: The name of the saved csvfile. Telescope by default.
 #' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
-#' @return The forecast
+#' @return The forecast of the input data
 #' @examples
 #' telescope.forecast(taylor, horizon=10)
 #' @export
@@ -34,6 +34,10 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnom
     tvp <- extract.info(tvp, use.second.freq, debug)
     
     print(paste("Found frequency:", tvp$frequency))
+    
+    if(tvp$frequency==1){
+      stop("Telescope requires seasonal data")
+    }
     
     # Remove all Anomalies on the raw time series first
     if(tvp$frequency>10 && doAnomDet) {
