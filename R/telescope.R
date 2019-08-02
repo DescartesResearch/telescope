@@ -5,7 +5,7 @@
 #' @title Perform the Forecast
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param horizon The number of values that should be forecast
-#' @param boxcox A flag indicating if the Box-Cox transofrmation should be performed
+#' @param boxcox Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.
 #' @param repsANN Optional parameter: The amount of repeats for ANN. 20 by default.
 #' @param doAnomDet  Optional parameter: Boolean whether anomaly detection shall be used for clustering. TRUE by default
 #' @param replace.zeros  Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default
@@ -16,7 +16,7 @@
 #' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
 #' @return The forecast
 #' @examples
-#' telescope.forecast(AirPassengers, horizon=10)
+#' telescope.forecast(taylor, horizon=10)
 #' @export
 telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
