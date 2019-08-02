@@ -5,6 +5,7 @@
 #' @title Perform the Forecast
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param horizon The number of values that should be forecast
+#' @param boxcox A flag indicating if the Box-Cox transofrmation should be performed
 #' @param repsANN Optional parameter: The amount of repeats for ANN. 20 by default.
 #' @param doAnomDet  Optional parameter: Boolean whether anomaly detection shall be used for clustering. TRUE by default
 #' @param replace.zeros  Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default
@@ -17,7 +18,7 @@
 #' @examples
 #' telescope.forecast(AirPassengers, horizon=10)
 #' @export
-telescope.forecast <- function(tvp, horizon, repsANN = 20, doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
+telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
     if(anyNA(tvp)) {
       stop("Telescope does not support NA values, only numeric.")
@@ -47,13 +48,16 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20, doAnomDet = TRUE, rep
       tvp$values <- tvp$values + abs(minValue) + 1
     }
     
-    # Calculating lambda for BoxCox
-    lambda <- BoxCox.lambda(tvp$values, lower = 0)
-    if(lambda < 0.1) lambda = 0
-    print(paste("Found Lambda for BoxCox:", lambda))
+    if(boxcox){
+      # Calculating lambda for BoxCox
+      lambda <- BoxCox.lambda(tvp$values, lower = 0)
+      if(lambda < 0.1) lambda = 0
+      print(paste("Found Lambda for BoxCox:", lambda))
+      
+      # BoxCox Transformation
+      tvp$values <- BoxCox(tvp$values, lambda)
+    }
     
-    # BoxCox Transformation
-    tvp$values <- BoxCox(tvp$values, lambda)
     
     minValue2 <- min(tvp$values)
     if (minValue2 <= 0) {
@@ -209,9 +213,10 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20, doAnomDet = TRUE, rep
       predXGB <- predXGB - abs(minValue2) - 1
     }
     
-    # Invert BoxCox transformation
-    predXGB <- InvBoxCox(predXGB, lambda)
-    
+    if(boxcox){
+      # Invert BoxCox transformation
+      predXGB <- InvBoxCox(predXGB, lambda)
+    }
     
     # Undo adjustment to positive values
     if (minValue <= 0) {
@@ -241,10 +246,13 @@ telescope.forecast <- function(tvp, horizon, repsANN = 20, doAnomDet = TRUE, rep
       xgb.model <- xgb.model - abs(minValue2) - 1
       tvp$values <- tvp$values - abs(minValue2) - 1
     }
-      
-    # Invert BoxCox transformation
-    xgb.model <- InvBoxCox(xgb.model, lambda)
-    tvp$values <- InvBoxCox(tvp$values, lambda)
+    
+    if(boxcox){
+      # Invert BoxCox transformation
+      xgb.model <- InvBoxCox(xgb.model, lambda)
+      tvp$values <- InvBoxCox(tvp$values, lambda)
+    }  
+    
     
     # Undo adjustment to positive values
     if (minValue <= 0) {
