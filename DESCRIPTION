@@ -10,13 +10,12 @@ License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
 Depends:
-    forecast (>= 8.1),
+    forecast (>= 8.5),
     cluster (>= 2.0.4),
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
     R.utils (>= 2.5.0),
-    devtools (>= 1.13.3),
-    zoo (>= 1.7.13),
-    e1071 (>= 1.6.8),
-    data.table (>= 1.10.4)
-RoxygenNote: 6.0.1
+    AnomalyDetection
+Remotes:
+    twitter/AnomalyDetection
+RoxygenNote: 6.1.1

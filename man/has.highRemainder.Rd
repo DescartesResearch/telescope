@@ -4,14 +4,12 @@
 \alias{has.highRemainder}
 \title{Checking Remainder}
 \usage{
-has.highRemainder(tvp, stlRemainder, use.log, sig.dif.factor)
+has.highRemainder(tvp, stlRemainder, sig.dif.factor)
 }
 \arguments{
 \item{tvp}{tvp The time value pair as vector}
 
 \item{stlRemainder}{The remainder part of the deccomposition of the tvp}
-
-\item{use.log}{A flag if log was used for tvp}
 
 \item{sig.dif.factor}{The threshold that is to exceed for having a high remainder}
 }
