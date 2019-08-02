@@ -17,4 +17,7 @@ Depends:
     R.utils (>= 2.5.0)
 Remotes:
     twitter/AnomalyDetection
+Imports: 
+    AnomalyDetection
 RoxygenNote: 6.0.1
+
