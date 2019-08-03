@@ -275,8 +275,6 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnom
     
     # Build the time series with history and forecast
     fcOnly <- ts(predXGB, frequency = tvp$frequency)
-    fcAll <- c(tvp$values, predXGB)
-    fcAll <- ts(fcAll, frequency = tvp$frequency)
     
     # Plot the model and the time series
     if(plot) {
@@ -289,10 +287,10 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, repsANN = 20, doAnom
     
     # Plot the forecasted time series and the original time series
     if(plot) {
-      y.min <- min(min(fcAll),min(tvp$values))
-      y.max <- max(max(fcAll),max(tvp$values))
-      plot(1:total.length, as.vector(fcAll),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length), ylim = c(y.min, y.max))
-      lines(1:length(tvp$values), tvp$values)
+      y.min <- min(min(fcOnly),min(tvp$values))
+      y.max <- max(max(fcOnly),max(tvp$values))
+      plot(hist.length:total.length, c(tvp$values[hist.length],as.vector(fcOnly)),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, total.length), ylim = c(y.min, y.max))
+      lines(1:hist.length, tvp$values)
     }
     
     # Collect information for output
