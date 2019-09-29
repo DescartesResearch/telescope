@@ -39,14 +39,33 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
         tvp <- BoxCox(tvp, lambda)
       }  
       
-      values <- forecast(doArima(tvp,frequency(tvp)>1),h=horizon)$mean
+      arima.model <- doArima(tvp,frequency(tvp)>1)
+      values <- forecast(arima.model,h=horizon)$mean
+      arima.fit <- ts(arima.model$fitted, frequency = frequency(tvp))
       
       if(boxcox){
         values <- InvBoxCox(values, lambda)
+        tvp <- InvBoxCox(tvp, lambda)
+        arima.fit <- InvBoxCox(arima.fit, lambda)
       }
       
       
-      return(values)
+      output.mean <- values
+      output.x <- as.vector(tvp)
+      output.residuals <-
+        output.x - arima.fit
+      output.method <- "Telescope"
+      output.accuracy <- accuracy(arima.fit, tvp)
+      output.fitted <- arima.fit
+      
+      
+      output <- list(mean=output.mean, x=output.x, residuals=output.residuals, method=output.method, 
+                     fitted=output.fitted)
+      
+      print(output.accuracy)
+      
+  
+      return(structure(output, class = 'forecast'))
       
     }
   
