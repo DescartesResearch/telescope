@@ -35,7 +35,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
       
       if(boxcox){
         lambda <- BoxCox.lambda(tvp, lower = 0)
-        
+        print(paste("Found Lambda for BoxCox:", lambda))
         tvp <- BoxCox(tvp, lambda)
       }  
       
@@ -49,6 +49,11 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
         arima.fit <- InvBoxCox(arima.fit, lambda)
       }
       
+      if(frequency(tvp) < 2){
+        print("Switch to fallback as time series has a frequency of 1")
+      } else {
+        print("Switch to fallback as STL requires at least 2 full periods")
+      }
       
       output.mean <- values
       output.x <- as.vector(tvp)
