@@ -4,10 +4,10 @@
 \alias{telescope.forecast}
 \title{Perform the Forecast}
 \usage{
-telescope.forecast(tvp, horizon, boxcox = TRUE, repsANN = 20,
-  doAnomDet = TRUE, replace.zeros = TRUE, use.indicators = TRUE,
-  save_fc = FALSE, csv.path = "", csv.name = "Telescope",
-  debug = FALSE, plot = TRUE)
+telescope.forecast(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE,
+  replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE,
+  csv.path = "", csv.name = "Telescope", debug = FALSE,
+  plot = TRUE)
 }
 \arguments{
 \item{tvp}{The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series}
@@ -16,9 +16,7 @@ telescope.forecast(tvp, horizon, boxcox = TRUE, repsANN = 20,
 
 \item{boxcox}{Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.}
 
-\item{repsANN}{Optional parameter: The amount of repeats for ANN. 20 by default.}
-
-\item{doAnomDet}{Optional parameter: Boolean whether anomaly detection shall be used for clustering. TRUE by default}
+\item{doAnomDet}{Optional parameter: Boolean whether anomaly detection shall be used. FALSE by default}
 
 \item{replace.zeros}{Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default}
 
@@ -42,5 +40,5 @@ Forecasts a given univariate time series in a hybrid manner and based on time se
 telescope.forecast(taylor, horizon=10)
 }
 \author{
-Marwin Zuefle, Andre Bauer
+Andre Bauer, Marwin Zuefle
 }

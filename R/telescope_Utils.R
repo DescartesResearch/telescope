@@ -15,83 +15,44 @@ save.csv <- function(values, name, path = '') {
 }
 
 
-#' @description Extract the requird information (e.g., frequency, values, etc.) of the time series
+#' @description Extract the requird information (e.g., frequency, values) of the time series
 #'
 #' @title Extract time series information
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
-#' @param use.sec.freq Determines if a second frequency shall be used
 #' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
 #' @return the time value pair as vector, the frequency of the data, use.sec.freq and if the data was no time series, the last iteration and the periodigram of the frequncy estimation is also returned
-extract.info <- function(tvp, use.sec.freq, debug=FALSE) {
+extract.ts <- function(tvp, debug=FALSE) {
 
-  # If the time value pair is a time series, get the values and the frequency
-  if (is.ts(tvp)) {
-    frequency <- frequency(tvp)
-    use.second.freq <- FALSE
-    tvp <- tvp[1:length(tvp)]
-
-    return(
-      list(
-        "values" = as.vector(tvp),
-        "frequency" = frequency,
-        "use.second.freq" = use.second.freq
-      )
-    )
-
-  } else  {
-    # If the time value pair is not a time series, estimate frequency and extract values
-    tvp <- as.matrix(tvp)
-    if (ncol(tvp) == 2) {
+    if (is.matrix(tvp) && ncol(tvp) == 2) {
       tvp <- tvp[, 2]
-    } else if (ncol(tvp) > 2) {
-      stop(
-        "Input time series has to many columns. Either single column with only raw values or two columns with raw values in second column!"
-      )
+    } else if (is.matrix(tvp) && ncol(tvp) > 2) {
+      stop("Input time series has to many columns. Either single column with only raw values or two columns with raw values in second column!")
     }
-    freq <-
-      calcFrequencyPeriodogram(
-        timeValuePair = tvp,
-        asInteger = TRUE,
-        difFactor = 0.5,
-        debug = debug
-      )
+    freq <- calcFrequencyPeriodogram(timeValuePair = tvp, asInteger = TRUE, difFactor = 0.5, debug = debug)
 
-    frequency <- freq$frequency[1]
-    use.second.freq <- use.sec.freq
+    tvp <- ts(tvp, frequency = freq$frequency[1])
 
-    return(
-      list(
-        "values" = as.vector(tvp),
-        "frequency" = frequency,
-        "use.second.freq" = use.second.freq,
-        "lastIterfreq" = freq$lastIterfreq,
-        "pgram" = freq$pgram
-      )
-    )
-  }
-
-
-
+    return(tvp)
+    
 }
 
 #' @description Forecasts the season part of the time series
 #'
 #' @title Forecasting Season
-#' @param tvp The time value pair as vector
-#' @param stlTrain The decomposition of tvp
-#' @param horizon The forecast horizon
+#' @param total.length history + horizon
+#' @param season The seasonal pattern from stl
+#' @param frequency The frequency of the timeseries
+#' @param hist.length The length of the history
 #' @return The seasonal pattern for the forecast horizon
-forecast.season <- function(tvp, stlTrain, horizon) {
-  # Total length = history + forecast
-  total.length <- length(tvp$values) + horizon
+forecast.season <- function(total.length, season, frequency, hist.length) {
   # As the season is per defintion recurring, repeat season over the horizon
-  fullper <- as.integer(total.length / tvp$frequency)
-  rest <- total.length - (fullper * tvp$frequency)
-  fcSeason <- rep(stlTrain$time.series[1:tvp$frequency, 1], fullper)
+  fullper <- as.integer(total.length / frequency)
+  rest <- total.length - (fullper * frequency)
+  fcSeason <- rep(season[1:frequency], fullper)
   if (rest > 0) {
-    fcSeason <- c(fcSeason, stlTrain$time.series[1:rest, 1])
+    fcSeason <- c(fcSeason, season[1:rest])
   }
-  return(fcSeason)
+  return(fcSeason[(hist.length+1):total.length])
 }
 
 #' @description Forecats the trend part of the time series
@@ -105,27 +66,27 @@ forecast.season <- function(tvp, stlTrain, horizon) {
 forecast.trend <- function(model, tsTrainTrend, frequency, horizon) {
   # If trend is exponential, log time series  
   if (model == "exp") {
-      tsTrainLOG <- ts(log(tsTrainTrend), frequency = frequency)
-      fcArimaLOG <- tryCatch({
-        fArimaLOG <- doArima(tsTrainLOG, FALSE)
-        forecast(fArimaLOG, h = horizon)$mean
-      }, error = function(e){
-        etsmodel <- ets(ts(tsTrainLOG))
-        ts(forecast(etsmodel, h = horizon)$mean,frequency)
-      }
-      )
-      print("exponential Trend detected!")
-      fcArima <- exp(fcArimaLOG)
-    } else {
-      fcArima <- tryCatch({
-        fArima <- doArima(tsTrainTrend, FALSE)
-        forecast(fArima, h = horizon)$mean
-      }, error = function(e){
-        etsmodel <- ets(ts(tsTrainTrend))
-        ts(forecast(etsmodel, h = horizon)$mean,frequency)
-      }
-      )
+    tsTrainLOG <- log(tsTrainTrend)
+    fcArimaLOG <- tryCatch({
+      fArimaLOG <- doArima(tsTrainLOG, FALSE)
+      forecast(fArimaLOG, h = horizon)$mean
+    }, error = function(e){
+      etsmodel <- ets(ts(tsTrainLOG))
+      ts(forecast(etsmodel, h = horizon)$mean,frequency)
     }
+    )
+    print("exponential Trend detected!")
+    fcArima <- exp(fcArimaLOG)
+  } else {
+    fcArima <- tryCatch({
+      fArima <- doArima(tsTrainTrend, FALSE)
+      forecast(fArima, h = horizon)$mean
+    }, error = function(e){
+      etsmodel <- ets(ts(tsTrainTrend))
+      ts(forecast(etsmodel, h = horizon)$mean,frequency)
+    }
+    )
+  }
   return(fcArima)
 }
 
@@ -167,106 +128,4 @@ doArima <- function(ts, season = TRUE){
     return(fc)
   }
   return(NULL)
-}
-
-
-#' @description Performs the ANN forecast of the timeseries.
-#'
-#' @title Apply ANN
-#' @param ts The timeseries.
-#' @param rep The amount of repeats
-#' @return The ANN Forecast
-doANN <- function(myts,rep = 20){
-  result <- tryCatch({
-    nnetar(myts, repeats = rep)
-  }, error = function(e){
-    print(paste("Some error doing ANN, probably stl: ", e, sep="" ))
-    tryCatch({
-      nnetar(myts, repeats = rep, p=1)
-    }, error = function(e){
-      print(paste("Other unknown error: ", e, sep = ""))
-      myts[length(myts)]
-    })
-  })
-  return(result)
-}
-
-#' @description Creates a tag containing the MASE of the forecasting methods for the timeseries.
-#'
-#' @title Compute MASE
-#' @param forecast The forecasted values.
-#' @param train The 'historical' data used for forecasting.
-#' @param test The 'future' data used for finding MASE.
-#' @param plot Boolean indicating whether the forecast should be plotted.
-#' @return MASE between forecast and real data
-computeMASE <- function(forecast, train, test, plot){
-  if(plot){
-    plot(1:length(test), test,type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation')
-    lines(1:length(forecast), forecast, type = "l", col="red")
-  }
-
-  forecast <- as.vector(forecast)
-  train <- as.vector(train)
-  test <- as.vector(test)
-
-  # calculate scaling factor
-  test <- append(test, train[length(train)], after = 0)
-  n <- length(test)
-  if(n == 1){
-    stop('Computing MASE: Test vector of length 0 is invalid.')
-  }
-  scalingFactor <- sum(abs(test[2:n] - test[1:(n-1)])) / (n-1)
-
-  # Avoding to divide by zero
-  if(scalingFactor==0) {
-    scalingFactor<-0.00001
-  }
-
-  # calculate MASE
-  et <- abs(test[2:length(test)]-forecast)
-  qt <- et/scalingFactor
-  meanMASE <- mean(abs(qt))
-
-  return(meanMASE)
-}
-
-#' @description MASE for a naive forecast taking the last observation for the whole forecast
-#'
-#' @title Compute MASE for same value
-#' @param forecast The forecasted values.
-#' @param train The 'historical' data used for forecasting.
-#' @param test The 'future' data used for finding MASE.
-#' @param plot Boolean indicating whether the forecast should be plotted.
-#' @return MASE between forecast and real data
-computeMASEsameValue <- function(forecast, train, test, plot){
-  if(plot){
-    plot(1:length(test), test,type="l",col="black", main = deparse(substitute(forecast)))
-    lines(1:length(forecast), forecast, type = "l", col="red")
-  }
-
-  forecast <- as.vector(forecast)
-  train <- as.vector(train)
-  test <- as.vector(test)
-
-  # calculate scaling factor
-  n <- length(test)
-  if(n == 1){
-    stop('Computing MASE: Test vector of length 0 is invalid.')
-  }
-  lastObservation <- tail(train,1)
-  maseForecast <- rep(lastObservation,n)
-  scalingFactor <- sum(abs(maseForecast - test[1:n])) / n
-
-  # Avoding to divide by zero
-  if(scalingFactor==0) {
-    scalingFactor<-0.00001
-    print("scaling factor is 0")
-  }
-
-  # calculate MASE
-  et <- abs(test-forecast)
-  qt <- et/scalingFactor
-  meanMASE <- mean(abs(qt))
-
-  return(meanMASE)
 }
