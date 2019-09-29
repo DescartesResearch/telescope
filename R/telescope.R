@@ -77,7 +77,9 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     }
     
     freqs <- unique(c(freqs, frequency(tvp)))
-    
+    if(1 %in% freqs){
+      freqs <- freqs[-which(freqs==1)] 
+    }
     
     
     
