@@ -208,7 +208,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     
     # Calculates the accuracies of the trained model
     accuracyXGB <- accuracy(xgb.model, tvp)
-    print(inner.accuracy)
+    print(accuracyXGB)
     
     # Build the time series with history and forecast
     fcOnly <- ts(predXGB, frequency(tvp))
@@ -236,7 +236,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     output.residuals <-
       output.x - ts(xgb.model, frequency = frequency(tvp))
     output.method <- "Telescope"
-    output.accuracy <- inner.accuracy
+    output.accuracy <- accuracyXGB
     output.fitted <- xgb.model
     
     
