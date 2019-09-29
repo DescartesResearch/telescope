@@ -49,45 +49,4 @@ doXGB.train <- function(myts, cov, booster, verbose) {
   return(model)
 }
 
-#' @description Checks if the time series has a significant trend
-#'
-#' @title Estimating the boosting method
-#' @param stl.decomp The STL decomposition of a time series
-#' @param lower.percentile Optional parameter: The lower percentile for the IPR. 0.05 by default
-#' @param upper.percentile Optional parameter: The upper percentile for the IPR. 0.95 by default
-#' @param threshold Optional parameter: Threshold what the propotion of trend component has to exceed to be trendy. 0.33 by default
-#' @return True if the time series has a significant trend
-check.trend <- function(stl.decomp, lower.percentile = 0.05, upper.percentile = 0.95, threshold = 0.33) {
 
-  # Calculates the IPR of the noise as noise may have outliers
-  range.noise <- IPR(stl.decomp$time.series[,3], lower.percentile, upper.percentile)
-  # Calculates the range
-  range.trend <- range(stl.decomp$time.series[,2])[2] - range(stl.decomp$time.series[,2])[1]
-  range.season <- range(stl.decomp$time.series[,1])[2] - range(stl.decomp$time.series[,1])[1]
-
-  # Calculates the propotion of each component
-  range.vec <- c(range.noise, range.trend, range.season)
-  range.aggr <- sum(range.vec)
-  range.ratios <- range.vec / range.aggr
-
-  # If trend component has a higher propotion than the threshold
-  if(range.ratios[2] >= threshold) {
-    return(TRUE)
-  } else {
-    return(FALSE)
-  }
-
-}
-
-#' @description computes the interpercentile range of vector x from percentile lower.percentile to percentile upper.percentile
-#'
-#' @title Inter Percentile Range
-#' @param x The vector to compute interpercentile range of
-#' @param lower.percentile The lower percentile
-#' @param upper.percentile The upper percentile
-#' @return The range between the lower and upper percentile
-IPR <- function(x, lower.percentile, upper.percentile) {
-  q <- quantile(x, c(lower.percentile, upper.percentile))
-  y <- q[2] - q[1]
-  return(as.double(y))
-}

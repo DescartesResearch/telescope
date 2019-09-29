@@ -4,14 +4,16 @@
 \alias{forecast.season}
 \title{Forecasting Season}
 \usage{
-\method{forecast}{season}(tvp, stlTrain, horizon)
+\method{forecast}{season}(total.length, season, frequency, hist.length)
 }
 \arguments{
-\item{tvp}{The time value pair as vector}
+\item{total.length}{history + horizon}
 
-\item{stlTrain}{The decomposition of tvp}
+\item{season}{The seasonal pattern from stl}
 
-\item{horizon}{The forecast horizon}
+\item{frequency}{The frequency of the timeseries}
+
+\item{hist.length}{The length of the history}
 }
 \value{
 The seasonal pattern for the forecast horizon

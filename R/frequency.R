@@ -185,9 +185,9 @@ calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor 
     ithBest <- ithBest + 1
   }
 
-  # If there is no "good" frequency found, set frequency to 2 as STL requries at least this value
+  # If there is no "good" frequency found, set frequency to 1
   if(frequency == -1) {
-    frequency = 2
+    frequency = 1
     if(debug) print("No frequency found. Set frequency to: 2")
   } else {
     if(debug) print(paste("Accepting frequency:",frequency))
