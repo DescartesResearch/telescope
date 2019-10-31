@@ -175,6 +175,10 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     fXGB$feature_names <- colnames(xgbcov)
     
     
+    if(horizon == 1){
+      testcov <- t(testcov)
+    }
+    
     
     predXGB <- predict(fXGB, testcov)
     predXGB <- predXGB + fc.trend
