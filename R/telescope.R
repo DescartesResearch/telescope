@@ -34,7 +34,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     if(frequency(tvp) < 2 || length(tvp) <= 2*frequency(tvp)){
       
       if(boxcox){
-        lambda <- BoxCox.lambda(tvp, lower = 0)
+        lambda <- BoxCox.lambda(tvp, lower = 0, upper = 1)
         print(paste("Found Lambda for BoxCox:", lambda))
         tvp <- BoxCox(tvp, lambda)
       }  
@@ -119,7 +119,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     
     if(boxcox){
       # Calculating lambda for BoxCox
-      lambda <- BoxCox.lambda(tvp, lower = 0)
+      lambda <- BoxCox.lambda(tvp, lower = 0, upper = 1)
       if(lambda < 0.1) lambda = 0
       print(paste("Found Lambda for BoxCox:", lambda))
       
@@ -239,7 +239,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     print(accuracyXGB)
     
     # Build the time series with history and forecast
-    fcOnly <- ts(predXGB, frequency(tvp))
+    fcOnly <- ts(predXGB, frequency = frequency(tvp))
     
     # Plot the model and the time series
     if(plot) {
