@@ -1,7 +1,7 @@
 # Telescope 
 Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition.
 
-## Attention: This is a test-version for multivariate forecasting
+## Attention: This is a test-version for forecasting with covariates
 
 ## Installation
 This package can be installed in R by using the following commands:
