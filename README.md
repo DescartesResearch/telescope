@@ -7,12 +7,12 @@ Telescope is a hybrid multi-step-ahead forecasting approach based on time series
 This package can be installed in R by using the following commands:
 
 `install.packages("devtools")` <br />
-`devtools::install_github("DescartesResearch/telescope")` <br />
+`devtools::install_github("DescartesResearch/telescope", ref="test_multivariate")` <br />
 
 For unknown reasons, install_gitub does not work under all Windows versions. Therefore the package can alternatively be installed in R with the following commands:
 
 `install.packages("remotes")` <br />
-`remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/master.zip", INSTALL_opt= "--no-multiarch")`
+`remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/test_multivariate.zip", INSTALL_opt= "--no-multiarch")`
 
 ## Example
 `library(telescope)` <br />
