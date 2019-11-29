@@ -21,8 +21,8 @@ For unknown reasons, install_gitub does not work under all Windows versions. The
 <br />
 <br />
 
-`library(fpp2)`
-`library(telescope)`
+`library(fpp2)` <br />
+`library(telescope)` <br />
 `train.ts <- ts(elecdemand[1:16520,1],frequency = 48)` <br />
 `covariates <- ts(elecdemand[1:16520,2:3],frequency = 48)` <br />
 `future <- ts(elecdemand[16521:17520,2:3],frequency = 48)` <br />
