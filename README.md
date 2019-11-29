@@ -18,6 +18,16 @@ For unknown reasons, install_gitub does not work under all Windows versions. The
 `library(telescope)` <br />
 `forecast <- telescope.forecast(taylor, horizon = 1000)`
 
+<br />
+<br />
+
+`train.ts <- ts(elecdemand[1:16520,1],frequency = 48)` <br />
+`covariates <- ts(elecdemand[1:16520,2:3],frequency = 48)` <br />
+`future <- ts(elecdemand[16521:17520,2:3],frequency = 48)` <br />
+`telescope.forecast(train.ts, horizon = 1000, future.covariates = future, train.covariates = covariates, regressor='randomforest')`
+
+
+
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).
 
 ![alt text](https://se.informatik.uni-wuerzburg.de/fileadmin/_processed_/7/3/csm_Telescope_982b20e78b.png "Telescope")
