@@ -9,6 +9,9 @@
 #' @param doAnomDet  Optional parameter: Boolean whether anomaly detection shall be used. FALSE by default
 #' @param replace.zeros  Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default
 #' @param use.indicators  Optional parameter: If TRUE, additional information (e.g. a flag wheter there is a high remainder) will be returned. TRUE by default
+#' @param train.covariates Opitional parameter: eiter a vector or matrix or time series containing covariates. If covariates are used, future.covariates is also requried. NULL by default
+#' @param future.covariates Opitional parameter: eiter a vector or matrix or time series containing covariates for the forecast. Requieres train.covariates. NULL by default 
+#' @param regressor Opitional parameter: specifies the machine-learning based regressor. Currently supported are XGBoost, RandomForest and SVM. XGBoost by default
 #' @param save_fc  Optional parameter: Boolean wheter the forecast shall be saved as csv. FALSE by default
 #' @param csv.path Optional parameter: The path for the saved csv-file. The current workspace by default.
 #' @param csv.name Optional parameter: The name of the saved csvfile. Telescope by default.
@@ -17,10 +20,25 @@
 #' @examples
 #' telescope.forecast(taylor, horizon=10)
 #' @export
-telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
+telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, train.covariates = NULL, future.covariates = NULL, regressor = 'XGBoost', save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
     if(anyNA(tvp)) {
       stop("Telescope does not support NA values, only numeric.")
+    }
+  
+    if(!is.null(train.covariates) && is.null(future.covariates)){
+      stop("The future covariates are missing")
+    }
+  
+    if(is.null(train.covariates) && !is.null(future.covariates)){
+      stop("The training covariates are missing")
+    }
+  
+  
+    regressor <- gsub(' ','',tolower(regressor))
+  
+    if(!(regressor %in% c("xgboost", "randomforest", "svm"))){
+      stop("A wrong regressor is specified. Regressor is either or XGBoost, RandomForest or SVM")
     }
   
     # If the time value pair is not a time series, estimate frequency and extract values
@@ -29,6 +47,34 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
       print(paste("Found frequency:", frequency(tvp)))
     }
   
+    multi <- FALSE
+  
+    if(!is.null(train.covariates) && !is.null(future.covariates)){
+      
+      train.covariates <- as.matrix(train.covariates)
+      future.covariates <- as.matrix(future.covariates)
+      
+      
+      if(nrow(train.covariates) != length(tvp)){
+        stop("The training covariates have a different length as the time series")
+      }
+      
+      if(nrow(future.covariates) != horizon){
+        stop("The future covariates have a different length as the horizon")
+      }
+      
+      if(ncol(future.covariates) != ncol(train.covariates)){
+        stop("The covariates have a different feature set")
+      }
+      
+      multi <- TRUE
+      train.covariates <- apply(train.covariates, 2, as.vector)
+      future.covariates <- apply(future.covariates, 2, as.vector)
+      
+    }
+  
+    
+
     # Alternative for non-seasonal time series 
     # STL requires at least two full periods
     if(frequency(tvp) < 2 || length(tvp) <= 2*frequency(tvp)){
@@ -144,8 +190,15 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
       print("-------------- ATTENTION: High remainder in STL --------------")
     }
     
-    train <- cbind(tvp.stl$time.series[,1:2], fourier.terms)
-    colnames(train) <- c('Season', 'Trend', colnames(fourier.terms))
+    
+    if(multi){
+      train <- cbind(tvp.stl$time.series[,1:2], fourier.terms, train.covariates)
+      colnames(train) <- c('Season', 'Trend', colnames(fourier.terms), colnames(train.covariates))
+    } else {
+      train <- cbind(tvp.stl$time.series[,1:2], fourier.terms)
+      colnames(train) <- c('Season', 'Trend', colnames(fourier.terms))
+    }
+    
     
     model <- fittingModels(tvp.stl,frequency = frequency(tvp),difFactor = 1.5, debug = FALSE)
     
@@ -159,20 +212,41 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     fc.season <- forecast.season(length(tvp)+horizon, train[,1], frequency(tvp), length(tvp))
     fc.fourier.terms <- fourier(tvp.mul, K = rep(1,length(freqs)), h = horizon)
     
-    fc.features <- cbind(fc.season, fc.trend, fc.fourier.terms)
-    colnames(fc.features) <- c('Season', 'Trend', colnames(fc.fourier.terms))
+    
+    
+    if(multi){
+      fc.features <- cbind(fc.season, fc.trend, fc.fourier.terms, future.covariates)
+      colnames(fc.features) <- c('Season', 'Trend', colnames(fc.fourier.terms), colnames(future.covariates))
+    } else {
+      fc.features <- cbind(fc.season, fc.trend, fc.fourier.terms)
+      colnames(fc.features) <- c('Season', 'Trend', colnames(fc.fourier.terms))
+    }
+    
    
     xgbcov <- as.matrix(train[,-2])
     xgblabel <- as.vector(tvp - train[,2])
     booster <- "gblinear"
     testcov <- as.matrix(fc.features[,-2])
-    
+
+    switch(regressor,
+      "xgboost"= {
+        fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
+      },
+      "svm"= {
+        fXGB <- svm(y = xgblabel, x = xgbcov)
+      },
+      "randomforest"= {
+        fXGB <- randomForest(y = xgblabel, x = xgbcov)
+      }
+    )
    
-    fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
+    
     
    
     # Unify names
     fXGB$feature_names <- colnames(xgbcov)
+    colnames(testcov) <- colnames(xgbcov)
+    
     
     
     if(horizon == 1){
@@ -208,7 +282,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
       print(paste("Time elapsed for the whole forecast:", difftime(endTime, startTime, units = "secs")))
     }
     
-    par(mfrow = c(2, 1))
+    
     
     # Get model of the history
     xgb.model <- predict(fXGB, xgbcov)
@@ -243,6 +317,7 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     
     # Plot the model and the time series
     if(plot) {
+      par(mfrow = c(2, 1))
       y.min <- min(min(tvp[-1]),min(xgb.model[-1]))
       y.max <- max(max(tvp[-1]),max(xgb.model[-1]))
       plot(1:length(tvp[-1]), tvp[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, length(tvp)+horizon), ylim = c(y.min, y.max) )

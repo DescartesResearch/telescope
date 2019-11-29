@@ -5,7 +5,7 @@ Version: 0.2.0
 Date: 2019-09-29
 Author: Andre Bauer <andre.bauer@uni-wuerzburg.de>, Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>
 Maintainer: Andre Bauer <andre.bauer@uni-wuerzburg.de>, Marwin Zuefle <marwin.zuefle@uni-wuerzburg.de>
-Description: Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition.
+Description: Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition. Attention: This is a version in test-state that supports forecasting with covariates.
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
@@ -14,6 +14,8 @@ Depends:
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
     R.utils (>= 2.5.0),
+	e1071 (>= 1.7-0.1),
+	randomForest (>= 4.6-14),
     AnomalyDetection
 Remotes:
     twitter/AnomalyDetection

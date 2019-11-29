@@ -5,9 +5,10 @@
 \title{Perform the Forecast}
 \usage{
 telescope.forecast(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE,
-  replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE,
-  csv.path = "", csv.name = "Telescope", debug = FALSE,
-  plot = TRUE)
+  replace.zeros = TRUE, use.indicators = TRUE,
+  train.covariates = NULL, future.covariates = NULL,
+  regressor = "XGBoost", save_fc = FALSE, csv.path = "",
+  csv.name = "Telescope", debug = FALSE, plot = TRUE)
 }
 \arguments{
 \item{tvp}{The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series}
@@ -21,6 +22,12 @@ telescope.forecast(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE,
 \item{replace.zeros}{Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default}
 
 \item{use.indicators}{Optional parameter: If TRUE, additional information (e.g. a flag wheter there is a high remainder) will be returned. TRUE by default}
+
+\item{train.covariates}{Opitional parameter: eiter a vector or matrix or time series containing covariates. If covariates are used, future.covariates is also requried. NULL by default}
+
+\item{future.covariates}{Opitional parameter: eiter a vector or matrix or time series containing covariates for the forecast. Requieres train.covariates. NULL by default}
+
+\item{regressor}{Opitional parameter: specifies the machine-learning based regressor. Currently supported are XGBoost, RandomForest and SVM. XGBoost by default}
 
 \item{save_fc}{Optional parameter: Boolean wheter the forecast shall be saved as csv. FALSE by default}
 
