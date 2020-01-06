@@ -44,6 +44,10 @@ guessFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor
     }
 
     # Create the periodogram for the difference of the original time series using the estimated frequency as lag
+    if(!is.null(spans) && spans >= length(DiffTvp)){
+      spans <- length(DiffTvp) - 1
+      if(spans < 0) spans <- NULL 
+    }
     PGramTvpDiff <- spec.pgram(ts(DiffTvp),plot=FALSE,spans = spans)
 
     # Find the closest frequency in the periodogram of diffs compared to the estimated frequency of the original observations
