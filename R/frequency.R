@@ -192,7 +192,7 @@ calcFrequencyPeriodogram <- function(timeValuePair, asInteger = TRUE, difFactor 
   # If there is no "good" frequency found, set frequency to 1
   if(frequency == -1) {
     frequency = 1
-    if(debug) print("No frequency found. Set frequency to: 2")
+    if(debug) print("No frequency found. Set frequency to: 1")
   } else {
     if(debug) print(paste("Accepting frequency:",frequency))
   }
