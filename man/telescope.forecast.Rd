@@ -4,15 +4,17 @@
 \alias{telescope.forecast}
 \title{Perform the Forecast}
 \usage{
-telescope.forecast(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE,
-  replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE,
-  csv.path = "", csv.name = "Telescope", debug = FALSE,
+telescope.forecast(tvp, horizon, natural = TRUE, boxcox = TRUE,
+  doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE,
+  save_fc = FALSE, csv.path = "", csv.name = "Telescope", debug = FALSE,
   plot = TRUE)
 }
 \arguments{
 \item{tvp}{The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series}
 
 \item{horizon}{The number of values that should be forecast}
+
+\item{natural}{Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.}
 
 \item{boxcox}{Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.}
 

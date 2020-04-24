@@ -5,6 +5,7 @@
 #' @title Perform the Forecast
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param horizon The number of values that should be forecast
+#' @param natural Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.
 #' @param boxcox Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.
 #' @param doAnomDet  Optional parameter: Boolean whether anomaly detection shall be used. FALSE by default
 #' @param replace.zeros  Optional parameter: If TRUE, all zeros will be replaced by the mean of the non-zero neighbors. TRUE by default
@@ -17,7 +18,7 @@
 #' @examples
 #' telescope.forecast(taylor, horizon=10)
 #' @export
-telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
+telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
     if(anyNA(tvp)) {
       stop("Telescope does not support NA values, only numeric.")
@@ -89,16 +90,23 @@ telescope.forecast <- function(tvp, horizon, boxcox = TRUE, doAnomDet = FALSE, r
     freq <- calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5, debug = FALSE)
     spec <- freq$pgram$spec[order(freq$pgram$spec, decreasing = TRUE)]/max(freq$pgram$spec)
     
-    freqs <- c()
     
-    # Get frequencies that are significant
-    for(i in 1:(length(freq$pgram$freq))){
-      freqs <- c(freqs ,calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5,maxIters = 10,ithBest = i, PGramTvp = freq$pgram,debug=FALSE)$frequency)
-      freqs <- unique(freqs)
-      if(spec[i] < 0.5){
-        break
+    if(natural){
+      freqs <- c()
+      
+      # Get frequencies that are significant
+      for(i in 1:(length(freq$pgram$freq))){
+        freqs <- c(freqs ,calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5,maxIters = 10,ithBest = i, PGramTvp = freq$pgram,debug=FALSE)$frequency)
+        freqs <- unique(freqs)
+        if(spec[i] < 0.5){
+          break
+        }
       }
+    } else {
+      freqs <- 1/freq$pgram$freq[order(freq$pgram$spec, decreasing = TRUE)]
+      freqs <- freqs[1:(which(spec<0.5)[1]-1)]
     }
+    
     
     freqs <- unique(c(freqs, frequency(tvp)))
     if(1 %in% freqs){
