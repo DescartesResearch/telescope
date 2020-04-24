@@ -26,7 +26,7 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
   
     # If the time value pair is not a time series, estimate frequency and extract values
     if(!is.ts(tvp)){
-      tvp <- extract.ts(tvp)
+      tvp <- extract.ts(tvp, natural, debug)
       print(paste("Found frequency:", frequency(tvp)))
     }
   
