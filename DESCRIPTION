@@ -19,7 +19,7 @@ Depends:
     partykit    (>= 1.2),
     pracma  (>= 2.2.5),
     proxy   (>= 0.4),
-    Cubist  (>= 0.2.3),
+    Cubist  (>= 0.2.2),
     evtree  (>= 1.0),
     randomForest    (>= 4.6),
     rpart   (>= 4.1),
