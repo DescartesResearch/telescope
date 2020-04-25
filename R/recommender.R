@@ -48,7 +48,7 @@ trainingrecommender <- function(timeseries.chars, accuracies){
   for(m in methods){
     train <- cbind(timeseries.chars, degr[,m])
     colnames(train) <- c(colnames(timeseries.chars), "degr")
-    model <- randomForest(degr ~ ., data=train)
+    model <- randomForest(degr ~ ., data=train, mtry = floor(sqrt(ncol(train))), sampsize = floor(0.9*nrow(train)), replace=TRUE )
     models[length(models)+1] <- list(model)
     est.degr <- cbind(est.degr,predict(model,timeseries.chars))
   }
@@ -65,7 +65,7 @@ trainingrecommender <- function(timeseries.chars, accuracies){
   train <- as.data.frame(est.degr)
   train$best <- factor(best)
   colnames(train) <- c(methods, 'Best')
-  model <- randomForest(Best ~ ., data=train)
+  model <- randomForest(Best ~ ., data=train, mtry = floor(sqrt(ncol(train))), sampsize = floor(0.9*nrow(train)), replace=TRUE )
   
   return(structure(list("reg.models"=models, "clas.model"=model, "names"=methods, "chars"=colnames(timeseries.chars)), class = 'telescope.recommendation'))
   
