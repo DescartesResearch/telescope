@@ -31,6 +31,7 @@ For unknown reasons, install_gitub does not work under all Windows versions. The
 `model <- telescope.trainrecommender(ts.list)` <br />
 `telescope.forecast(forecast::taylor, horizon = 1000, rec_model = model)` 
 
+## Further Information and References
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).
 
 [1] Bauer, A., Züfle, M., Herbst, N., Kounev, S. & Curtef, V. (2020). [Telescope: An Automatic Feature Extraction and Transformation Approach for Time Series Forecasting on a Level-Playing Field](https://www.bibsonomy.org/documents/8efb3f8c174e0904cce5bdaadb3e6160/andre.bauer/BaZuHeKoCu-ICDE-Telescope.pdf). Proceedings of the 36th International Conference on Data Engineering (ICDE) (p./pp. 1902-1905).
