@@ -4,10 +4,12 @@
 \alias{extract.ts}
 \title{Extract time series information}
 \usage{
-\method{extract}{ts}(tvp, debug = FALSE)
+\method{extract}{ts}(tvp, natural = TRUE, debug = FALSE)
 }
 \arguments{
 \item{tvp}{The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series}
+
+\item{natural}{Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.}
 
 \item{debug}{Optional parameter: If TRUE, debugging information will be displayed. FALSE by default}
 }

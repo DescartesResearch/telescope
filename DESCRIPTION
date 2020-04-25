@@ -14,6 +14,13 @@ Depends:
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
     R.utils (>= 2.5.0),
+    pracma  (>= 2.2.9),
+    proxy   (>= 0.4),
+    Cubist  (>= 0.2.3),
+    evtree  (>= 1.0),
+    randomForest    (>= 4.6),
+    rpart   (>= 4.1),
+    e1071   (>= 1.7),
     AnomalyDetection
 Remotes:
     twitter/AnomalyDetection

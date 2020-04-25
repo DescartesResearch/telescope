@@ -4,9 +4,15 @@
 \alias{guessFrequencyPeriodogram}
 \title{Guess the Frequency of the Time Series}
 \usage{
-guessFrequencyPeriodogram(timeValuePair, asInteger = TRUE,
-  difFactor = 0.5, ithBest = 1, spans = NULL, debug = FALSE,
-  PGramTvp = NULL)
+guessFrequencyPeriodogram(
+  timeValuePair,
+  asInteger = TRUE,
+  difFactor = 0.5,
+  ithBest = 1,
+  spans = NULL,
+  debug = FALSE,
+  PGramTvp = NULL
+)
 }
 \arguments{
 \item{timeValuePair}{Timestamps with raw values (not as time series object)}

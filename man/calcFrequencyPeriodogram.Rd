@@ -4,9 +4,16 @@
 \alias{calcFrequencyPeriodogram}
 \title{Calcuates the Frequency of the Time Series}
 \usage{
-calcFrequencyPeriodogram(timeValuePair, asInteger = TRUE,
-  difFactor = 0.5, tolerance = 0.05, maxIters = 10, ithBest = 1,
-  PGramTvp = NULL, debug = FALSE)
+calcFrequencyPeriodogram(
+  timeValuePair,
+  asInteger = TRUE,
+  difFactor = 0.5,
+  tolerance = 0.05,
+  maxIters = 10,
+  ithBest = 1,
+  PGramTvp = NULL,
+  debug = FALSE
+)
 }
 \arguments{
 \item{timeValuePair}{Timestamps with raw values (not as time series object)}

@@ -16,12 +16,13 @@ save.csv <- function(values, name, path = '') {
 
 
 #' @description Extract the requird information (e.g., frequency, values) of the time series
-#'
+#' 
 #' @title Extract time series information
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
+#' @param natural Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.
 #' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
 #' @return the time value pair as vector, the frequency of the data, use.sec.freq and if the data was no time series, the last iteration and the periodigram of the frequncy estimation is also returned
-extract.ts <- function(tvp, debug=FALSE) {
+extract.ts <- function(tvp, natural=TRUE, debug=FALSE) {
 
     if (is.matrix(tvp) && ncol(tvp) == 2) {
       tvp <- tvp[, 2]
@@ -29,8 +30,12 @@ extract.ts <- function(tvp, debug=FALSE) {
       stop("Input time series has to many columns. Either single column with only raw values or two columns with raw values in second column!")
     }
     freq <- calcFrequencyPeriodogram(timeValuePair = tvp, asInteger = TRUE, difFactor = 0.5, debug = debug)
-
-    tvp <- ts(tvp, frequency = freq$frequency[1])
+    if(natural){
+      tvp <- ts(tvp, frequency = freq$frequency[1])
+    } else {
+      tvp <- ts(tvp, frequency = 1/freq$pgram$freq[order(freq$pgram$spec, decreasing = TRUE)][1])
+    }
+    
 
     return(tvp)
     
