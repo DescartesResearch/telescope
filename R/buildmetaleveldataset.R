@@ -39,7 +39,7 @@ cubistprediction <- function(train,label,test){
 evtreeprediction <- function(train,label,test){ 
   data <- as.data.frame(cbind(train,label))
   colnames(data) <- c(colnames(train), 'Target')
-  model <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2))
+  model <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2, minbucket = 1))
   return(predict(model,as.data.frame(test)))
 }
 
