@@ -39,7 +39,11 @@ cubistprediction <- function(train,label,test){
 evtreeprediction <- function(train,label,test){ 
   data <- as.data.frame(cbind(train,label))
   colnames(data) <- c(colnames(train), 'Target')
-  model <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2, minbucket = 1))
+  if(nrow(train) < 20){
+    model <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2L, minbucket = 1L))
+  } else {
+    model <- evtree(Target ~ ., data = data)
+  }
   return(predict(model,as.data.frame(test)))
 }
 
@@ -313,7 +317,7 @@ buildMetaLevelDataset <- function(timeseries,natural=TRUE,boxcox=TRUE){
     if(!is.null(dim(tvp))){
       tvp <- tvp[,1]
     }
-    print(paste("training progress:",i/length(timeseries)))
+    print(paste("training progress:", sprintf("%3.2f",100*i/length(timeseries)),"%"))
     # considers only seasonal time series
     if(frequency(tvp)>1){
       check.seasonality <- TRUE
