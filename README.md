@@ -1,6 +1,8 @@
 # Telescope 
 Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition. 
 
+![alt text](https://se.informatik.uni-wuerzburg.de/fileadmin/_processed_/7/3/csm_Telescope_982b20e78b.png "Telescope")
+
 Details of the Telescope approach can be found at [1,2]. The details of the recommendation approach can be found at [3].
 
 ## Installation
@@ -14,14 +16,22 @@ For unknown reasons, install_gitub does not work under all Windows versions. The
 `install.packages("remotes")` <br />
 `remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/master.zip", INSTALL_opt= "--no-multiarch")`
 
-## Example
+## Example without Recommendition system
 `library(telescope)` <br />
-`forecast <- telescope.forecast(taylor, horizon = 1000)`
+`forecast <- telescope.forecast(forecast::taylor, horizon = 1000)`
+
+## Example with Recommendition system
+`install.packages('Mcomp')` <br />
+`library(Mcomp)` <br />
+`library(telescope)` <br /><br />
+`ts.list <- list()` <br />
+`for(i in 1:length(M3)){` <br />
+`  ts.list[i] <- list(ts(c(M3[[i]]$x,M3[[i]]$xx),frequency = frequency(M3[[i]]$x)))` <br />
+`}` <br /><br />
+`model <- telescope.trainrecommender(ts.list)` <br />
+`telescope.forecast(forecast::taylor, horizon = 1000, rec_model = model)` 
 
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).
-
-![alt text](https://se.informatik.uni-wuerzburg.de/fileadmin/_processed_/7/3/csm_Telescope_982b20e78b.png "Telescope")
-
 
 [1] Bauer, A., Züfle, M., Herbst, N., Kounev, S. & Curtef, V. (2020). [Telescope: An Automatic Feature Extraction and Transformation Approach for Time Series Forecasting on a Level-Playing Field](https://www.bibsonomy.org/documents/8efb3f8c174e0904cce5bdaadb3e6160/andre.bauer/BaZuHeKoCu-ICDE-Telescope.pdf). Proceedings of the 36th International Conference on Data Engineering (ICDE) (p./pp. 1902-1905).
 
