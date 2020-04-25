@@ -17,7 +17,7 @@ telescope.trainrecommender(timeseries, natural = TRUE, boxcox = TRUE)
 An object of the class telescope.recommendation
 }
 \description{
-Trains a recommendations for chossing the best-suited machine learning approach for a given time series.
+Trains a recommendations for chossing the best-suited machine learning approach for a given time series. Note that non-seasonal time series are ignored.
 }
 \examples{
 telescope.trainrecommender(list(AirPassengers, forecast::taylor))

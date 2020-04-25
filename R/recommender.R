@@ -2,7 +2,7 @@
 
 set.seed(200)
 
-#' @description Trains a recommendations for chossing the best-suited machine learning approach for a given time series.
+#' @description Trains a recommendations for chossing the best-suited machine learning approach for a given time series. Note that non-seasonal time series are ignored.
 #'
 #' @title Trains the recommendation system
 #' @param timeseries A list of time series

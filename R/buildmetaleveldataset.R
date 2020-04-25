@@ -317,7 +317,7 @@ buildMetaLevelDataset <- function(timeseries,natural=TRUE,boxcox=TRUE){
     if(!is.null(dim(tvp))){
       tvp <- tvp[,1]
     }
-    print(paste("training progress:", sprintf("%3.2f",100*i/length(timeseries)),"%"))
+    print(paste("Training progress:", sprintf("%3.2f",100*i/length(timeseries)),"%"))
     # considers only seasonal time series
     if(frequency(tvp)>1){
       check.seasonality <- TRUE
