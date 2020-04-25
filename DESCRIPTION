@@ -14,7 +14,7 @@ Depends:
     xgboost (>= 0.6.4),
     tseries (>= 0.10.35),
     R.utils (>= 2.5.0),
-    pracma  (>= 2.2.9),
+    pracma  (>= 2.2.5),
     proxy   (>= 0.4),
     Cubist  (>= 0.2.3),
     evtree  (>= 1.0),
