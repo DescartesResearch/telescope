@@ -137,7 +137,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       # gets the best machine learning method for the time series
       method <- consultrecommender(tvp=tvp,tvp.stl=tvp.stl,model=rec_model)
       
-      print(paste(method, "is selected.")
+      print(paste(method, "is selected."))
       
       switch(method,
              # "Catboost"= {},
