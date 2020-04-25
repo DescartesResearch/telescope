@@ -18,7 +18,7 @@ telescope.trainrecommender <- function(timeseries,natural=TRUE,boxcox=TRUE){
   }
   
   # gets the meta-level data set
-  dataset <- telescope.buildMetaLevelDataset(timeseries,natural,boxcox)
+  dataset <- buildMetaLevelDataset(timeseries,natural,boxcox)
   return(trainingrecommender(dataset$chars, dataset$acc))
   
 }
