@@ -5,6 +5,7 @@
 #' @title Perform the Forecast
 #' @param tvp The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series
 #' @param horizon The number of values that should be forecast
+#' @param rec_model Optional parameter: 
 #' @param natural Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.
 #' @param boxcox Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.
 #' @param doAnomDet  Optional parameter: Boolean whether anomaly detection shall be used. FALSE by default
@@ -16,12 +17,16 @@
 #' @param debug Optional parameter: If TRUE, debugging information will be displayed. FALSE by default
 #' @return The forecast of the input data
 #' @examples
-#' telescope.forecast(taylor, horizon=10)
+#' telescope.forecast(forecast::taylor, horizon=10)
 #' @export
-telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
+telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxcox = TRUE, doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE, save_fc = FALSE, csv.path = '', csv.name = "Telescope", debug = FALSE, plot = TRUE) {
   
     if(anyNA(tvp)) {
       stop("Telescope does not support NA values, only numeric.")
+    }
+  
+    if(!is.null(rec_model) && !is(rec_model, 'telescope.recommendation')){
+      stop('The model must be of class: telescope.recommendation!')
     }
   
     # If the time value pair is not a time series, estimate frequency and extract values
@@ -75,9 +80,7 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
       
     }
   
-    sig.dif.factor <- 0.5
-    plotACC <- TRUE
-    
+
     startTime <- Sys.time()
     
     
@@ -86,68 +89,18 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
       tvp <- ts(removeAnomalies(as.vector(tvp),frequency = frequency(tvp), replace.zeros = replace.zeros),frequency = frequency(tvp))
     }
     
-    # Calculating the most dominant frequencies
-    freq <- calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5, debug = FALSE)
-    spec <- freq$pgram$spec[order(freq$pgram$spec, decreasing = TRUE)]/max(freq$pgram$spec)
     
+    prep <- preprocessing(tvp,natural,boxcox)
     
-    if(natural){
-      freqs <- c()
-      
-      # Get frequencies that are significant
-      for(i in 1:(length(freq$pgram$freq))){
-        freqs <- c(freqs ,calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5,maxIters = 10,ithBest = i, PGramTvp = freq$pgram,debug=FALSE)$frequency)
-        freqs <- unique(freqs)
-        if(spec[i] < 0.5){
-          break
-        }
-      }
-    } else {
-      freqs <- 1/freq$pgram$freq[order(freq$pgram$spec, decreasing = TRUE)]
-      freqs <- freqs[1:(which(spec<0.5)[1]-1)]
-    }
+    tvp <- prep$tvp
     
-    
-    freqs <- unique(c(freqs, frequency(tvp)))
-    if(1 %in% freqs){
-      freqs <- freqs[-which(freqs==1)] 
-    }
-    
-    
-    
-    
-
-    
-
-    # get the minimum value to shift all observations to real positive values
-    minValue <- min(tvp)
-    if (minValue <= 0) {
-      tvp <- tvp + abs(minValue) + 1
-    }
-    
-    if(boxcox){
-      # Calculating lambda for BoxCox
-      lambda <- BoxCox.lambda(tvp, lower = 0, upper = 1)
-      if(lambda < 0.1) lambda = 0
-      print(paste("Found Lambda for BoxCox:", lambda))
-      
-      # BoxCox Transformation
-      tvp <- BoxCox(tvp, lambda)
-    }
-    
-    
-    minValue2 <- min(tvp)
-    if (minValue2 <= 0) {
-      tvp <- tvp + abs(minValue2) + 1
-    }
-    
-    tvp.mul <- msts(tvp, seasonal.periods = freqs)
+    tvp.mul <- msts(tvp, seasonal.periods = prep$freqs)
     
     tvp.stl <- stl(tvp,s.window = "periodic",t.window=length(tvp)/2)
-    fourier.terms <- fourier(tvp.mul, K = rep(1,length(freqs)))
+    fourier.terms <- fourier(tvp.mul, K = rep(1,length(prep$freqs)))
     
     # check if the time series has a high remainder
-    high_remainder <- has.highRemainder(tvp, tvp.stl$time.series[,3], sig.dif.factor)
+    high_remainder <- has.highRemainder(tvp, tvp.stl$time.series[,3], sig.dif.factor=0.5)
     if (high_remainder) {
       print("-------------- ATTENTION: High remainder in STL --------------")
     }
@@ -165,7 +118,7 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
     # Forecast the features
     fc.trend <- forecast.trend(model$trendmodel,train[,2], frequency(tvp), horizon)
     fc.season <- forecast.season(length(tvp)+horizon, train[,1], frequency(tvp), length(tvp))
-    fc.fourier.terms <- fourier(tvp.mul, K = rep(1,length(freqs)), h = horizon)
+    fc.fourier.terms <- fourier(tvp.mul, K = rep(1,length(prep$freqs)), h = horizon)
     
     fc.features <- cbind(fc.season, fc.trend, fc.fourier.terms)
     colnames(fc.features) <- c('Season', 'Trend', colnames(fc.fourier.terms))
@@ -176,7 +129,53 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
     testcov <- as.matrix(fc.features[,-2])
     
    
-    fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
+    
+    if(is.null(rec_model)){
+      fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
+    } else {
+      
+      # gets the best machine learning method for the time series
+      method <- consultrecommender(tvp=tvp,tvp.stl=tvp.stl,model=rec_model)
+      
+      switch(method,
+             # "Catboost"= {},
+             "Cubist" = {
+               
+               fXGB <- cubist(x=xgbcov, y=xgblabel)
+             },
+             "Evtree" = {
+               
+               data <- as.data.frame(cbind(xgbcov,xgblabel))
+               colnames(data) <- c(colnames(train), 'Target')
+               fXGB <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2))
+             },
+             "Nnetar"={
+               
+               fXGB <- nnetar(y=xgblabel,xreg=xgbcov, MaxNWts=2000)
+             },
+             "RF"= {
+               
+               fXGB <- randomForest(y = xgblabel, x = xgbcov)
+             },
+             "Rpart"={
+               
+               data <- as.data.frame(cbind(xgbcov,xgblabel))
+               colnames(data) <- c(colnames(train), 'Target')
+               fXGB <- rpart(Target ~ ., data = data, method="anova",control = rpart.control(minsplit = 2, maxdepth = 30, cp = 0.000001))
+             },
+             "svr"= {
+               
+               fXGB <- svm(y = xgblabel, x = xgbcov)
+             },
+             "xgboost"= {
+               
+               fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
+             }
+      )
+      
+      
+    }
+    
     
    
     # Unify names
@@ -188,22 +187,57 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
     }
     
     
-    predXGB <- predict(fXGB, testcov)
+    if(is.null(rec_model)){
+      predXGB <- predict(fXGB, testcov)
+    } else {
+      switch(method,
+             # "Catboost"= {},
+             "Cubist" = {
+               
+               predXGB <- predict(fXGB, testcov)
+             },
+             "Evtree" = {
+               
+               predXGB <- predict(fXGB, as.data.frame(testcov))
+             },
+             "Nnetar"={
+               
+               predXGB <- as.vector(forecast(fXGB, h=nrow(testcov), xreg=testcov)$mean)
+             },
+             "RF"= {
+               
+               predXGB <- predict(fXGB, testcov)
+             },
+             "Rpart"={
+               
+               predXGB <- predict(fXGB, as.data.frame(testcov))
+             },
+             "svr"= {
+               
+               predXGB <- predict(fXGB, testcov)
+             },
+             "xgboost"= {
+               
+               predXGB <- predict(fXGB, testcov)
+             }
+      )
+    }
+    
     predXGB <- predXGB + fc.trend
     
     
-    if (minValue2 <= 0) {
-      predXGB <- predXGB - abs(minValue2) - 1
+    if (prep$minValue2 <= 0) {
+      predXGB <- predXGB - abs(prep$minValue2) - 1
     }
     
     if(boxcox){
       # Invert BoxCox transformation
-      predXGB <- InvBoxCox(predXGB, lambda)
+      predXGB <- InvBoxCox(predXGB, prep$lambda)
     }
     
     # Undo adjustment to positive values
-    if (minValue <= 0) {
-      predXGB <- predXGB - abs(minValue) - 1
+    if (prep$minValue <= 0) {
+      predXGB <- predXGB - abs(prep$minValue) - 1
     }
     
     if (save_fc) {
@@ -224,22 +258,22 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
 
     
     
-    if (minValue2 <= 0) {
-      xgb.model <- xgb.model - abs(minValue2) - 1
-      tvp <- tvp - abs(minValue2) - 1
+    if (prep$minValue2 <= 0) {
+      xgb.model <- xgb.model - abs(prep$minValue2) - 1
+      tvp <- tvp - abs(prep$minValue2) - 1
     }
     
     if(boxcox){
       # Invert BoxCox transformation
-      xgb.model <- InvBoxCox(xgb.model, lambda)
-      tvp <- InvBoxCox(tvp, lambda)
+      xgb.model <- InvBoxCox(xgb.model, prep$lambda)
+      tvp <- InvBoxCox(tvp, prep$lambda)
     }  
     
     
     # Undo adjustment to positive values
-    if (minValue <= 0) {
-      xgb.model <- xgb.model - abs(minValue) - 1
-      tvp <- tvp - abs(minValue) - 1
+    if (prep$minValue <= 0) {
+      xgb.model <- xgb.model - abs(prep$minValue) - 1
+      tvp <- tvp - abs(prep$minValue) - 1
     }
     
     # Calculates the accuracies of the trained model
@@ -288,4 +322,69 @@ telescope.forecast <- function(tvp, horizon, natural=TRUE, boxcox = TRUE, doAnom
     
     return(structure(output, class = 'forecast'))
     
+}
+
+
+
+#' @description Preprocesses the time series and retrieves dominant frequncies
+#'
+#' @title Perform the Forecast
+#' @param tvp The time value pair: a time series
+#' @param natural Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.
+#' @param boxcox Optional parameter: A flag indicating if the Box-Cox transofrmation should be performed. It is not recommend to disable the transformation. TRUE by default.
+#' @return The adjusted time series, the dominant frequencies, and adjustment parameters
+preprocessing <- function(tvp,natural=TRUE,boxcox=TRUE){
+  # Calculating the most dominant frequencies
+  freq <- calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5, debug = FALSE)
+  spec <- freq$pgram$spec[order(freq$pgram$spec, decreasing = TRUE)]/max(freq$pgram$spec)
+  
+  
+  if(natural){
+    freqs <- c()
+    
+    # Get frequencies that are significant
+    for(i in 1:(length(freq$pgram$freq))){
+      freqs <- c(freqs ,calcFrequencyPeriodogram(timeValuePair = as.vector(tvp), asInteger = TRUE, difFactor = 0.5,maxIters = 10,ithBest = i, PGramTvp = freq$pgram,debug=FALSE)$frequency)
+      freqs <- unique(freqs)
+      if(spec[i] < 0.5){
+        break
+      }
+    }
+  } else {
+    freqs <- 1/freq$pgram$freq[order(freq$pgram$spec, decreasing = TRUE)]
+    freqs <- freqs[1:(which(spec<0.5)[1]-1)]
   }
+  
+  
+  freqs <- unique(c(freqs, frequency(tvp)))
+  if(1 %in% freqs){
+    freqs <- freqs[-which(freqs==1)] 
+  }
+  
+  # get the minimum value to shift all observations to real positive values
+  minValue <- min(tvp)
+  if (minValue <= 0) {
+    tvp <- tvp + abs(minValue) + 1
+  }
+  
+  lambda <- NULL
+  
+  if(boxcox){
+    # Calculating lambda for BoxCox
+    lambda <- BoxCox.lambda(tvp, lower = 0, upper = 1)
+    if(lambda < 0.1) lambda = 0
+    print(paste("Found Lambda for BoxCox:", lambda))
+    
+    # BoxCox Transformation
+    tvp <- BoxCox(tvp, lambda)
+  }
+  
+  
+  minValue2 <- min(tvp)
+  if (minValue2 <= 0) {
+    tvp <- tvp + abs(minValue2) + 1
+  }
+  
+  return(list('tvp'=tvp,'lambda'=lambda, 'freqs'=freqs, 'minValue'=minValue, 'minValue2'=minValue2))
+}
+

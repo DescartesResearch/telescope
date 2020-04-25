@@ -4,15 +4,28 @@
 \alias{telescope.forecast}
 \title{Perform the Forecast}
 \usage{
-telescope.forecast(tvp, horizon, natural = TRUE, boxcox = TRUE,
-  doAnomDet = FALSE, replace.zeros = TRUE, use.indicators = TRUE,
-  save_fc = FALSE, csv.path = "", csv.name = "Telescope", debug = FALSE,
-  plot = TRUE)
+telescope.forecast(
+  tvp,
+  horizon,
+  rec_model = NULL,
+  natural = TRUE,
+  boxcox = TRUE,
+  doAnomDet = FALSE,
+  replace.zeros = TRUE,
+  use.indicators = TRUE,
+  save_fc = FALSE,
+  csv.path = "",
+  csv.name = "Telescope",
+  debug = FALSE,
+  plot = TRUE
+)
 }
 \arguments{
 \item{tvp}{The time value pair: either vector of raw values or n-by-2 matrix (raw values in second column), or time series}
 
 \item{horizon}{The number of values that should be forecast}
+
+\item{rec_model}{Optional parameter:}
 
 \item{natural}{Optional parameter: A flag indicating wheter only natural frequencies (e.g., daily, hourly, ...) or all found frequencies shall be considered.}
 
@@ -39,7 +52,7 @@ The forecast of the input data
 Forecasts a given univariate time series in a hybrid manner and based on time series decomposition
 }
 \examples{
-telescope.forecast(taylor, horizon=10)
+telescope.forecast(forecast::taylor, horizon=10)
 }
 \author{
 Andre Bauer, Marwin Zuefle
