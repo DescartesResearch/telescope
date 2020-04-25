@@ -137,6 +137,8 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       # gets the best machine learning method for the time series
       method <- consultrecommender(tvp=tvp,tvp.stl=tvp.stl,model=rec_model)
       
+      print(paste(method, "is selected.")
+      
       switch(method,
              # "Catboost"= {},
              "Cubist" = {
@@ -147,7 +149,11 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
                
                data <- as.data.frame(cbind(xgbcov,xgblabel))
                colnames(data) <- c(colnames(train), 'Target')
-               fXGB <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2))
+               if(nrow(data) < 20){
+                 fXGB <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2L, minbucket = 1L))
+               } else {
+                 fXGB <- evtree(Target ~ ., data = data)
+               }
              },
              "Nnetar"={
                
