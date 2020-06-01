@@ -148,7 +148,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
              "Evtree" = {
                
                data <- as.data.frame(cbind(xgbcov,xgblabel))
-               colnames(data) <- c(colnames(train), 'Target')
+               colnames(data) <- c(colnames(xgbcov), 'Target')
                if(nrow(data) <= 20){
                  fXGB <- evtree(Target ~ ., data = data, control = evtree.control(minsplit = 2L, minbucket = 1L))
                } else {
@@ -259,7 +259,13 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
     par(mfrow = c(2, 1))
     
     # Get model of the history
-    xgb.model <- predict(fXGB, xgbcov)
+    if(!is.null(rec_model) && method=="Nnetar"){
+      xgb.model <- as.vector(fXGB$fitted)
+      xgb.model[which(is.na(xgb.model))] <- 0
+    } else {
+      xgb.model <- predict(fXGB, xgbcov)
+    }
+    
     xgb.model <- xgb.model + train[,2]
 
     
