@@ -169,11 +169,11 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
                colnames(data) <- c(colnames(train), 'Target')
                fXGB <- rpart(Target ~ ., data = data, method="anova",control = rpart.control(minsplit = 2, maxdepth = 30, cp = 0.000001))
              },
-             "svr"= {
+             "SVR"= {
                
                fXGB <- svm(y = xgblabel, x = xgbcov)
              },
-             "xgboost"= {
+             "XGBoost"= {
                
                fXGB <- doXGB.train(myts = xgblabel, cov = xgbcov, booster = booster, verbose = 0)
              }
@@ -218,11 +218,11 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
                
                predXGB <- predict(fXGB, as.data.frame(testcov))
              },
-             "svr"= {
+             "SVR"= {
                
                predXGB <- predict(fXGB, testcov)
              },
-             "xgboost"= {
+             "XGBoost"= {
                
                predXGB <- predict(fXGB, testcov)
              }
