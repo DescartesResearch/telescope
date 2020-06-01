@@ -166,7 +166,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
              "Rpart"={
                
                data <- as.data.frame(cbind(xgbcov,xgblabel))
-               colnames(data) <- c(colnames(train), 'Target')
+               colnames(data) <- c(colnames(xgbcov), 'Target')
                fXGB <- rpart(Target ~ ., data = data, method="anova",control = rpart.control(minsplit = 2, maxdepth = 30, cp = 0.000001))
              },
              "SVR"= {
