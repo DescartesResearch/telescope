@@ -9,7 +9,7 @@ nnetarprediction(train, label, test)
 \arguments{
 \item{train}{A matrix containing the seasonal component and fourier terms for training.}
 
-\item{label}{A vector containing the detrended time series.}
+\item{label}{A time series containing the detrended time series.}
 
 \item{test}{A matrix containing the seasonal component and fourier terms for the prediction.}
 }

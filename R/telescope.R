@@ -137,8 +137,9 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       # gets the best machine learning method for the time series
       method <- consultrecommender(tvp=tvp,tvp.stl=tvp.stl,model=rec_model)
       
-      print(paste(method, "is selected."))
       
+      
+      print(paste(method, "is selected."))
       switch(method,
              # "Catboost"= {},
              "Cubist" = {
@@ -157,7 +158,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
              },
              "Nnetar"={
                
-               fXGB <- nnetar(y=xgblabel,xreg=xgbcov, MaxNWts=2000)
+               fXGB <- nnetar(y=ts(xgblabel, frequency = frequency(tvp)),xreg=xgbcov, MaxNWts=2000)
              },
              "RF"= {
                

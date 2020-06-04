@@ -51,7 +51,7 @@ evtreeprediction <- function(train,label,test){
 #'
 #' @title Trains a nnetar model.
 #' @param train A matrix containing the seasonal component and fourier terms for training.
-#' @param label A vector containing the detrended time series.
+#' @param label A time series containing the detrended time series.
 #' @param test A matrix containing the seasonal component and fourier terms for the prediction. 
 #' @return The future detrended time series.
 nnetarprediction <- function(train,label,test){
@@ -283,7 +283,7 @@ calculateAccuracies <- function(data, label){
   acc <- cbind(#mape(catboostprediction(train,train.label,test),test.label), 
                mape(cubistprediction(train,train.label,test),test.label), 
                mape(evtreeprediction(train,train.label,test),test.label), 
-               mape(nnetarprediction(train,train.label,test),test.label), 
+               mape(nnetarprediction(train,ts(train.label, frequency = frequency(label)),test),test.label), 
                mape(randomforestprediction(train,train.label,test),test.label), 
                mape(rpartprediction(train,train.label,test),test.label), 
                mape(svrprediction(train,train.label,test),test.label), 
@@ -341,6 +341,7 @@ buildMetaLevelDataset <- function(timeseries,natural=TRUE,boxcox=TRUE){
         colnames(data) <- c('Season', colnames(fourier.terms))
         
         label <- as.vector(tvp - tvp.stl$time.series[,2])
+        label <- ts(label, frequency = frequency(tvp))
         
         hist.length <- (ceiling(nrow(data) * 0.8))
         
