@@ -17,5 +17,5 @@ preprocessing(tvp, natural = TRUE, boxcox = TRUE)
 The adjusted time series, the dominant frequencies, and adjustment parameters
 }
 \description{
-Preprocesses the time series and retrieves dominant frequncies
+Preprocesses the time series and retrieves dominant frequencies
 }

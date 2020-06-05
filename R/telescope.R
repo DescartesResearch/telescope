@@ -75,7 +75,8 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       
       print(output.accuracy)
       
-  
+      if(plot) plotting(output)
+      
       return(structure(output, class = 'forecast'))
       
     }
@@ -257,7 +258,6 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       print(paste("Time elapsed for the whole forecast:", difftime(endTime, startTime, units = "secs")))
     }
     
-    par(mfrow = c(2, 1))
     
     # Get model of the history
     if(!is.null(rec_model) && method=="Nnetar"){
@@ -296,22 +296,6 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
     # Build the time series with history and forecast
     fcOnly <- ts(predXGB, frequency = frequency(tvp))
     
-    # Plot the model and the time series
-    if(plot) {
-      y.min <- min(min(tvp[-1]),min(xgb.model[-1]))
-      y.max <- max(max(tvp[-1]),max(xgb.model[-1]))
-      plot(1:length(tvp[-1]), tvp[-1],type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, length(tvp)+horizon), ylim = c(y.min, y.max) )
-      lines(1:length(xgb.model[-1]), xgb.model[-1], type = "l", col="red")
-    }
-    
-    
-    # Plot the forecasted time series and the original time series
-    if(plot) {
-      y.min <- min(min(fcOnly),min(tvp))
-      y.max <- max(max(fcOnly),max(tvp))
-      plot(length(tvp):(length(tvp)+horizon), c(tvp[length(tvp)],as.vector(fcOnly)),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, length(tvp)+horizon), ylim = c(y.min, y.max))
-      lines(1:length(tvp), tvp)
-    }
     
     # Collect information for output
     output.mean <- fcOnly
@@ -333,13 +317,36 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
                      fitted=output.fitted)
     }
     
+    if(plot) plotting(output)
+    
     return(structure(output, class = 'forecast'))
     
 }
 
 
+#' @description Plots the modeling of the history and the forecast
+#'
+#' @title Plots the forecast
+plotting <- function(output){
+  par(mfrow = c(2, 1))
+  
+  # Plot the model and the time series
+  y.min <- min(min(output$x),min(output$fitted))
+  y.max <- max(max(output$x),max(output$fitted))
+  plot(1:length(output$x), output$x,type="l",col="black", main = 'History (black) and Model (red)', xlab = 'Index', ylab = 'Observation', xlim = c(0, length(output$x)+length(output$mean)), ylim = c(y.min, y.max) )
+  lines(1:length(output$fitted), output$fitted, type = "l", col="red")
 
-#' @description Preprocesses the time series and retrieves dominant frequncies
+  # Plot the forecasted time series and the original time series
+  y.min <- min(min(output$mean),min(output$x))
+  y.max <- max(max(output$mean),max(output$x))
+  plot(length(output$x):(length(output$x)+length(output$mean)), c(output$x[length(output$x)],as.vector(output$mean)),type = 'l',col="red",xlab = 'Index', ylab = 'Observation', main = 'History (black) and Forecast (red)', xlim = c(0, length(output$x)+length(output$mean)), ylim = c(y.min, y.max))
+  lines(1:length(output$x), output$x)
+  
+  
+}
+
+
+#' @description Preprocesses the time series and retrieves dominant frequencies
 #'
 #' @title Perform the Forecast
 #' @param tvp The time value pair: a time series
