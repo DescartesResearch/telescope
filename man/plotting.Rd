@@ -6,6 +6,9 @@
 \usage{
 plotting(output)
 }
+\arguments{
+\item{output}{contains the forecast, the fitted model, and the time series}
+}
 \description{
 Plots the modeling of the history and the forecast
 }

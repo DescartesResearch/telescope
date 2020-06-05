@@ -327,6 +327,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
 #' @description Plots the modeling of the history and the forecast
 #'
 #' @title Plots the forecast
+#' @param output contains the forecast, the fitted model, and the time series
 plotting <- function(output){
   par(mfrow = c(2, 1))
   
