@@ -3,7 +3,7 @@ Telescope is a hybrid multi-step-ahead forecasting approach based on time series
 
 ![alt text](https://se.informatik.uni-wuerzburg.de/fileadmin/_processed_/7/3/csm_Telescope_982b20e78b.png "Telescope")
 
-Details of the Telescope approach can be found at [1,2]. The details of the recommendation approach can be found at [3].
+Details of the Telescope approach can be found at [[1](https://www.bibsonomy.org/documents/8efb3f8c174e0904cce5bdaadb3e6160/andre.bauer/BaZuHeKoCu-ICDE-Telescope.pdf),[2](https://doi.org/10.1109/JPROC.2020.2983857)]. The details of the recommendation approach can be found at [[3](https://www.bibsonomy.org/documents/27a54ab734579fafad2f3bc44eea8daf/andre.bauer/BaZuGrScHeKo-ICPE20-Seasonal-Forecast.pdf)].
 
 ## Installation
 This package can be installed in R by using the following commands:
