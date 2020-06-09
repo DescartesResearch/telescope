@@ -39,6 +39,14 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
     # STL requires at least two full periods
     if(frequency(tvp) < 2 || length(tvp) <= 2*frequency(tvp)){
       
+      
+      # get the minimum value to shift all observations to real positive values
+      minValue <- min(tvp)
+      if (minValue <= 0) {
+        tvp <- tvp + abs(minValue) + 1
+      }
+      
+      
       if(boxcox){
         lambda <- BoxCox.lambda(tvp, lower = 0, upper = 1)
         print(paste("Found Lambda for BoxCox:", lambda))
@@ -55,6 +63,14 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
         arima.fit <- InvBoxCox(arima.fit, lambda)
       }
       
+      # revert shift
+      minValue <- min(tvp)
+      if (minValue <= 0) {
+        tvp <- tvp - abs(minValue) - 1
+        values <- values - abs(minValue) - 1
+        arima.fit <- arima.fit abs(minValue) - 1
+      }
+      
       if(frequency(tvp) < 2){
         print("Switch to fallback as time series has a frequency of 1")
       } else {
@@ -66,7 +82,9 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       output.residuals <-
         output.x - arima.fit
       output.method <- "Telescope"
-      output.accuracy <- accuracy(arima.fit, tvp)
+      acc <- accuracy(arima.fit, tvp)
+      row.names(acc) <- 'Training'
+      output.accuracy <- acc
       output.fitted <- arima.fit
       
       
@@ -291,6 +309,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
     
     # Calculates the accuracies of the trained model
     accuracyXGB <- accuracy(xgb.model, tvp)
+    row.names(accuracyXGB) <- 'Training'
     print(accuracyXGB)
     
     # Build the time series with history and forecast
