@@ -71,6 +71,10 @@ forecast.season <- function(total.length, season, frequency, hist.length) {
 forecast.trend <- function(model, tsTrainTrend, frequency, horizon) {
   # If trend is exponential, log time series  
   if (model == "exp") {
+    minValue <- min(tsTrainTrend)
+    if (minValue <= 0) {
+      tsTrainTrend <- tsTrainTrend + abs(minValue) + 1
+    }
     tsTrainLOG <- log(tsTrainTrend)
     fcArimaLOG <- tryCatch({
       fArimaLOG <- doArima(tsTrainLOG, FALSE)
@@ -82,6 +86,9 @@ forecast.trend <- function(model, tsTrainTrend, frequency, horizon) {
     )
     print("exponential Trend detected!")
     fcArima <- exp(fcArimaLOG)
+    if (minValue <= 0) {
+      fcArima <- fcArima - abs(minValue) - 1
+    }
   } else {
     fcArima <- tryCatch({
       fArima <- doArima(tsTrainTrend, FALSE)

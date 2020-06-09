@@ -68,7 +68,7 @@ telescope.forecast <- function(tvp, horizon, rec_model=NULL, natural=TRUE, boxco
       if (minValue <= 0) {
         tvp <- tvp - abs(minValue) - 1
         values <- values - abs(minValue) - 1
-        arima.fit <- arima.fit abs(minValue) - 1
+        arima.fit <- arima.fit - abs(minValue) - 1
       }
       
       if(frequency(tvp) < 2){
