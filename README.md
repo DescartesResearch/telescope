@@ -8,28 +8,38 @@ Details of the Telescope approach can be found at [[1](https://www.bibsonomy.org
 ## Installation
 This package can be installed in R by using the following commands:
 
-`install.packages("devtools")` <br />
-`devtools::install_github("DescartesResearch/telescope")` <br />
+```
+install.packages("devtools")
+devtools::install_github("DescartesResearch/telescope")
+```
 
-For unknown reasons, install_gitub does not work under all Windows versions. Therefore the package can alternatively be installed in R with the following commands:
+For unknown reasons, install_github does not work under all Windows versions. Therefore the package can alternatively be installed in R with the following commands:
 
-`install.packages("remotes")` <br />
-`remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/master.zip", INSTALL_opt= "--no-multiarch")`
+```
+install.packages("remotes")
+remotes::install_url(url="https://github.com/DescartesResearch/telescope/archive/master.zip", INSTALL_opt= "--no-multiarch")
+```
 
 ## Example without Recommendition system
-`library(telescope)` <br />
-`forecast <- telescope.forecast(forecast::taylor, horizon = 1000)`
+```
+library(telescope)
+forecast <- telescope.forecast(forecast::taylor, horizon = 1000)
+```
 
 ## Example with Recommendition system
-`install.packages('Mcomp')` <br />
-`library(Mcomp)` <br />
-`library(telescope)` <br /><br />
-`ts.list <- list()` <br />
-`for(i in 1:length(M3)){` <br />
-`  ts.list[i] <- list(ts(c(M3[[i]]$x,M3[[i]]$xx),frequency = frequency(M3[[i]]$x)))` <br />
-`}` <br /><br />
-`model <- telescope.trainrecommender(ts.list)` <br />
-`telescope.forecast(forecast::taylor, horizon = 1000, rec_model = model)` 
+```
+install.packages('Mcomp')
+library(Mcomp)
+library(telescope)
+
+ts.list <- list()
+for(i in 1:length(M3)){
+  ts.list[i] <- list(ts(c(M3[[i]]$x,M3[[i]]$xx),frequency = frequency(M3[[i]]$x)))` <br />
+}
+
+model <- telescope.trainrecommender(ts.list)
+telescope.forecast(forecast::taylor, horizon = 1000, rec_model = model)
+```
 
 ## Further Information and References
 For more information on this forecasting method, please visit our [homepage](http://descartes.tools/telescope).
