@@ -1,5 +1,5 @@
 # Telescope 
-Telescope is a hybrid multi-step-ahead forecasting approach based on time series decomposition. 
+Telescope is a machine learningbased forecasting approach that automatically retrieves relevant information from a given time series.. 
 
 ![alt text](https://se.informatik.uni-wuerzburg.de/fileadmin/_processed_/7/3/csm_Telescope_982b20e78b.png "Telescope")
 
